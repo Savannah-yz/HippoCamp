@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import importlib.util
 import json
 import sys
@@ -13,9 +14,12 @@ from matplotlib.lines import Line2D
 
 ROOT = Path(__file__).resolve().parent
 ANALYSIS_ROOT = ROOT.parent                     # analysis/
-RESULT_ROOT = ANALYSIS_ROOT / "result"
+DEFAULT_RESULTS_ROOT = ANALYSIS_ROOT / "local_results"
+DEFAULT_OUTPUT_DIR = ANALYSIS_ROOT / "outputs" / "figs"
+DEFAULT_DATA_DIR = ANALYSIS_ROOT / "data"
+RESULT_ROOT = DEFAULT_RESULTS_ROOT
 DIFF_SCRIPT = ANALYSIS_ROOT / "difficulty" / "generate_difficulty_reports.py"
-OUTPUT_DIR = ANALYSIS_ROOT / "figs"
+OUTPUT_DIR = DEFAULT_OUTPUT_DIR
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 DOMAIN_LABELS = {
@@ -25,41 +29,45 @@ DOMAIN_LABELS = {
 }
 DOMAIN_ORDER = ["(a) Bei", "(b) Adam", "(c) Victoria", "Benchmark"]
 
-METHOD_FILES = {
-    "college": {
-        "Standard RAG": RESULT_ROOT / "college_standardrag" / "evaluation_results.json",
-        "Self RAG": RESULT_ROOT / "college_selfrag_evaluation.json",
-        "Search-R1": RESULT_ROOT / "college_searchr1_evaluation.json",
-        "ReAct (Qwen3-VL-8B-Instruct)": RESULT_ROOT / "college_qwen_react_evaluation.json",
-        "ReAct (Gemini-2.5-flash)": RESULT_ROOT / "college_gemini_react_selfrag_evaluation.json",
-        "ChatGPT Agent Mode": RESULT_ROOT / "college_agent_mode_evaluate.json",
-        "Terminal Agent (Qwen3-VL-8B-Instruct)": RESULT_ROOT / "college_docker_qwen" / "judge_results.json",
-        "Terminal Agent (Gemini-2.5-flash)": RESULT_ROOT / "college_docker_gemini" / "judge_results.json",
-        "Terminal Agent (ChatGPT-5.2)": RESULT_ROOT / "college_docker_chatgpt" / "judge_results.json",
-    },
-    "law": {
-        "Standard RAG": RESULT_ROOT / "law_standardrag" / "evaluation_results.json",
-        "Self RAG": RESULT_ROOT / "law_selfrag_evaluation.json",
-        "Search-R1": RESULT_ROOT / "law_searchr1_evaluation.json",
-        "ReAct (Qwen3-VL-8B-Instruct)": RESULT_ROOT / "law_qwen_react_evaluation.json",
-        "ReAct (Gemini-2.5-flash)": RESULT_ROOT / "law_gemini_react_selfrag_evaluation.json",
-        "ChatGPT Agent Mode": RESULT_ROOT / "law_agent_mode_evaluate.json",
-        "Terminal Agent (Qwen3-VL-8B-Instruct)": RESULT_ROOT / "law_docker_qwen" / "judge_results.json",
-        "Terminal Agent (Gemini-2.5-flash)": RESULT_ROOT / "law_docker_gemini" / "judge_results.json",
-        "Terminal Agent (ChatGPT-5.2)": RESULT_ROOT / "law_docker_chatgpt" / "judge_results.json",
-    },
-    "finance": {
-        "Standard RAG": RESULT_ROOT / "finance_standardrag" / "evaluation_results.json",
-        "Self RAG": RESULT_ROOT / "finance_selfrag_evaluation.json",
-        "Search-R1": RESULT_ROOT / "finance_searchr1_evaluation.json",
-        "ReAct (Qwen3-VL-8B-Instruct)": RESULT_ROOT / "finance_qwen_react_evaluation.json",
-        "ReAct (Gemini-2.5-flash)": RESULT_ROOT / "finance_gemini_react_selfrag_evaluation.json",
-        "ChatGPT Agent Mode": RESULT_ROOT / "finance_agent_mode_evaluate.json",
-        "Terminal Agent (Qwen3-VL-8B-Instruct)": RESULT_ROOT / "finance_docker_qwen" / "judge_results.json",
-        "Terminal Agent (Gemini-2.5-flash)": RESULT_ROOT / "finance_docker_gemini" / "judge_results.json",
-        "Terminal Agent (ChatGPT-5.2)": RESULT_ROOT / "finance_docker_chatgpt" / "judge_results.json",
-    },
-}
+def build_method_files(result_root: Path) -> dict[str, dict[str, Path]]:
+    return {
+        "college": {
+            "Standard RAG": result_root / "college_standardrag" / "evaluation_results.json",
+            "Self RAG": result_root / "college_selfrag_evaluation.json",
+            "Search-R1": result_root / "college_searchr1_evaluation.json",
+            "ReAct (Qwen3-VL-8B-Instruct)": result_root / "college_qwen_react_evaluation.json",
+            "ReAct (Gemini-2.5-flash)": result_root / "college_gemini_react_selfrag_evaluation.json",
+            "ChatGPT Agent Mode": result_root / "college_agent_mode_evaluate.json",
+            "Terminal Agent (Qwen3-VL-8B-Instruct)": result_root / "college_docker_qwen" / "judge_results.json",
+            "Terminal Agent (Gemini-2.5-flash)": result_root / "college_docker_gemini" / "judge_results.json",
+            "Terminal Agent (ChatGPT-5.2)": result_root / "college_docker_chatgpt" / "judge_results.json",
+        },
+        "law": {
+            "Standard RAG": result_root / "law_standardrag" / "evaluation_results.json",
+            "Self RAG": result_root / "law_selfrag_evaluation.json",
+            "Search-R1": result_root / "law_searchr1_evaluation.json",
+            "ReAct (Qwen3-VL-8B-Instruct)": result_root / "law_qwen_react_evaluation.json",
+            "ReAct (Gemini-2.5-flash)": result_root / "law_gemini_react_selfrag_evaluation.json",
+            "ChatGPT Agent Mode": result_root / "law_agent_mode_evaluate.json",
+            "Terminal Agent (Qwen3-VL-8B-Instruct)": result_root / "law_docker_qwen" / "judge_results.json",
+            "Terminal Agent (Gemini-2.5-flash)": result_root / "law_docker_gemini" / "judge_results.json",
+            "Terminal Agent (ChatGPT-5.2)": result_root / "law_docker_chatgpt" / "judge_results.json",
+        },
+        "finance": {
+            "Standard RAG": result_root / "finance_standardrag" / "evaluation_results.json",
+            "Self RAG": result_root / "finance_selfrag_evaluation.json",
+            "Search-R1": result_root / "finance_searchr1_evaluation.json",
+            "ReAct (Qwen3-VL-8B-Instruct)": result_root / "finance_qwen_react_evaluation.json",
+            "ReAct (Gemini-2.5-flash)": result_root / "finance_gemini_react_selfrag_evaluation.json",
+            "ChatGPT Agent Mode": result_root / "finance_agent_mode_evaluate.json",
+            "Terminal Agent (Qwen3-VL-8B-Instruct)": result_root / "finance_docker_qwen" / "judge_results.json",
+            "Terminal Agent (Gemini-2.5-flash)": result_root / "finance_docker_gemini" / "judge_results.json",
+            "Terminal Agent (ChatGPT-5.2)": result_root / "finance_docker_chatgpt" / "judge_results.json",
+        },
+    }
+
+
+METHOD_FILES = build_method_files(RESULT_ROOT)
 
 METHOD_ORDER = [
     "Terminal Agent (Qwen3-VL-8B-Instruct)",
@@ -85,21 +93,37 @@ METHOD_LABELS = {
     "Search-R1": "Search-R1",
 }
 
-OUTPUT_SINGLE = {
-    "(a) Bei": OUTPUT_DIR / "difficulty_vs_performance_bei.png",
-    "(b) Adam": OUTPUT_DIR / "difficulty_vs_performance_adam.png",
-    "(c) Victoria": OUTPUT_DIR / "difficulty_vs_performance_victoria.png",
-}
-OUTPUT_2X2 = OUTPUT_DIR / "difficulty_vs_performance_all.png"
-OUTPUT_1X4 = OUTPUT_DIR / "difficulty_vs_performance_all_1x4.png"
+def build_output_paths(output_dir: Path) -> tuple[dict[str, Path], Path, Path, dict[str, Path], Path, Path]:
+    output_single = {
+        "(a) Bei": output_dir / "difficulty_vs_performance_bei.png",
+        "(b) Adam": output_dir / "difficulty_vs_performance_adam.png",
+        "(c) Victoria": output_dir / "difficulty_vs_performance_victoria.png",
+    }
+    output_2x2 = output_dir / "difficulty_vs_performance_all.png"
+    output_1x4 = output_dir / "difficulty_vs_performance_all_1x4.png"
 
-OUTPUT_SINGLE_PDF = {
-    "(a) Bei": OUTPUT_DIR / "difficulty_vs_performance_bei.pdf",
-    "(b) Adam": OUTPUT_DIR / "difficulty_vs_performance_adam.pdf",
-    "(c) Victoria": OUTPUT_DIR / "difficulty_vs_performance_victoria.pdf",
-}
-OUTPUT_2X2_PDF = OUTPUT_DIR / "difficulty_vs_performance_all.pdf"
-OUTPUT_1X4_PDF = OUTPUT_DIR / "difficulty_vs_performance_all_1x4.pdf"
+    output_single_pdf = {
+        "(a) Bei": output_dir / "difficulty_vs_performance_bei.pdf",
+        "(b) Adam": output_dir / "difficulty_vs_performance_adam.pdf",
+        "(c) Victoria": output_dir / "difficulty_vs_performance_victoria.pdf",
+    }
+    output_2x2_pdf = output_dir / "difficulty_vs_performance_all.pdf"
+    output_1x4_pdf = output_dir / "difficulty_vs_performance_all_1x4.pdf"
+    return output_single, output_2x2, output_1x4, output_single_pdf, output_2x2_pdf, output_1x4_pdf
+
+
+OUTPUT_SINGLE, OUTPUT_2X2, OUTPUT_1X4, OUTPUT_SINGLE_PDF, OUTPUT_2X2_PDF, OUTPUT_1X4_PDF = build_output_paths(OUTPUT_DIR)
+
+
+def configure_paths(data_dir: Path, results_root: Path, output_dir: Path) -> None:
+    global RESULT_ROOT, OUTPUT_DIR, METHOD_FILES
+    global OUTPUT_SINGLE, OUTPUT_2X2, OUTPUT_1X4, OUTPUT_SINGLE_PDF, OUTPUT_2X2_PDF, OUTPUT_1X4_PDF
+
+    RESULT_ROOT = results_root
+    OUTPUT_DIR = output_dir
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    METHOD_FILES = build_method_files(RESULT_ROOT)
+    OUTPUT_SINGLE, OUTPUT_2X2, OUTPUT_1X4, OUTPUT_SINGLE_PDF, OUTPUT_2X2_PDF, OUTPUT_1X4_PDF = build_output_paths(OUTPUT_DIR)
 
 
 def load_difficulty_module():
@@ -358,7 +382,30 @@ def save_1x4(domain_points, colors):
     print(f"Saved: {OUTPUT_1X4_PDF}")
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Generate HippoCamp difficulty-vs-performance plots")
+    parser.add_argument(
+        "--data-dir",
+        default=str(DEFAULT_DATA_DIR),
+        help="Directory containing Adam.json, Bei.json, Victoria.json and corresponding *_files.xlsx files.",
+    )
+    parser.add_argument(
+        "--results-root",
+        default=str(DEFAULT_RESULTS_ROOT),
+        help="Root directory containing your local evaluation outputs for each method.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        default=str(DEFAULT_OUTPUT_DIR),
+        help="Directory to write generated figures.",
+    )
+    return parser.parse_args()
+
+
 def main():
+    args = parse_args()
+    configure_paths(Path(args.data_dir), Path(args.results_root), Path(args.output_dir))
+
     plt.style.use("seaborn-v0_8-whitegrid")
     plt.rcParams.update(
         {
@@ -372,6 +419,8 @@ def main():
     )
 
     diff_mod = load_difficulty_module()
+    if hasattr(diff_mod, "configure_paths"):
+        diff_mod.configure_paths(Path(args.data_dir), Path(args.output_dir))
     by_qid, by_query = compute_difficulty_maps(diff_mod)
     domain_points = build_domain_method_points(by_qid, by_query)
 
@@ -379,7 +428,7 @@ def main():
     save_single_figures(domain_points, colors)
     save_2x2(domain_points, colors)
     save_1x4(domain_points, colors)
-    print("Done.")
+    print(f"Saved figures to: {OUTPUT_DIR}")
 
 
 if __name__ == "__main__":

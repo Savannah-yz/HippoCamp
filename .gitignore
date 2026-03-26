@@ -20,7 +20,10 @@ hippocamp_*.tar
 benchmark/HippoCamp_Gold/*
 !benchmark/HippoCamp_Gold/README.md
 benchmark/analysis/data/*.json
+benchmark/analysis/data/*.xlsx
 !benchmark/analysis/data/README.md
+benchmark/analysis/outputs/
+benchmark/analysis/local_results/
 
 # Local-only materials kept outside the public release surface
 arxiv/

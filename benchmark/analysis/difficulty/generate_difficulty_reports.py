@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import math
 import re
@@ -16,43 +17,53 @@ from matplotlib.patches import Patch
 
 ROOT = Path(__file__).resolve().parent
 ANALYSIS_ROOT = ROOT.parent                     # analysis/
-DATA_DIR = ANALYSIS_ROOT / "data"               # analysis/data/
-OUTPUT_DIR = ANALYSIS_ROOT / "figs"             # analysis/figs/
+DEFAULT_DATA_DIR = ANALYSIS_ROOT / "data"
+DEFAULT_OUTPUT_DIR = ANALYSIS_ROOT / "outputs" / "figs"
+DATA_DIR = DEFAULT_DATA_DIR
+OUTPUT_DIR = DEFAULT_OUTPUT_DIR
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Data files: download from https://huggingface.co/datasets/MMMem-org/HippoCamp
 # Place Bei.json, Adam.json, Victoria.json and *_files.xlsx in analysis/data/
-PROFILE_CONFIG = {
-    "(a) Bei": {
-        "json": DATA_DIR / "Bei.json",
-        "xlsx": DATA_DIR / "Bei_files.xlsx",
-        "color": "#E7A9B9",
-    },
-    "(b) Adam": {
-        "json": DATA_DIR / "Adam.json",
-        "xlsx": DATA_DIR / "Adam_files.xlsx",
-        "color": "#9CCFAE",
-    },
-    "(c) Victoria": {
-        "json": DATA_DIR / "Victoria.json",
-        "xlsx": DATA_DIR / "Victoria_files.xlsx",
-        "color": "#9EC6E8",
-    },
-    "Benchmark": {
-        "json": None,
-        "xlsx": None,
-        "color": "#F1C99E",
-    },
-}
+def build_profile_config(data_dir: Path) -> dict[str, dict]:
+    return {
+        "(a) Bei": {
+            "json": data_dir / "Bei.json",
+            "xlsx": data_dir / "Bei_files.xlsx",
+            "color": "#E7A9B9",
+        },
+        "(b) Adam": {
+            "json": data_dir / "Adam.json",
+            "xlsx": data_dir / "Adam_files.xlsx",
+            "color": "#9CCFAE",
+        },
+        "(c) Victoria": {
+            "json": data_dir / "Victoria.json",
+            "xlsx": data_dir / "Victoria_files.xlsx",
+            "color": "#9EC6E8",
+        },
+        "Benchmark": {
+            "json": None,
+            "xlsx": None,
+            "color": "#F1C99E",
+        },
+    }
+
+
+PROFILE_CONFIG = build_profile_config(DATA_DIR)
 
 ORDER = ["(a) Bei", "(b) Adam", "(c) Victoria", "Benchmark"]
 
-PNG_OUTPUT = {
-    "(a) Bei": OUTPUT_DIR / "difficulty_bei.png",
-    "(b) Adam": OUTPUT_DIR / "difficulty_adam.png",
-    "(c) Victoria": OUTPUT_DIR / "difficulty_victoria.png",
-    "Benchmark": OUTPUT_DIR / "difficulty_all.png",
-}
+def build_png_output(output_dir: Path) -> dict[str, Path]:
+    return {
+        "(a) Bei": output_dir / "difficulty_bei.png",
+        "(b) Adam": output_dir / "difficulty_adam.png",
+        "(c) Victoria": output_dir / "difficulty_victoria.png",
+        "Benchmark": output_dir / "difficulty_all.png",
+    }
+
+
+PNG_OUTPUT = build_png_output(OUTPUT_DIR)
 
 FEATURE_KEYS = [
     "evidence_files",
@@ -81,6 +92,15 @@ TAIL_QUANTILES = {
     "modality_count": 0.98,
     "reasoning_steps": 0.98,
 }
+
+
+def configure_paths(data_dir: Path, output_dir: Path) -> None:
+    global DATA_DIR, OUTPUT_DIR, PROFILE_CONFIG, PNG_OUTPUT
+    DATA_DIR = data_dir
+    OUTPUT_DIR = output_dir
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    PROFILE_CONFIG = build_profile_config(DATA_DIR)
+    PNG_OUTPUT = build_png_output(OUTPUT_DIR)
 
 
 @dataclass
@@ -794,7 +814,25 @@ MPLBACKEND=Agg python3 generate_difficulty_reports.py
     stats_path = ROOT / "difficulty_statistics.txt"
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Generate HippoCamp difficulty figures")
+    parser.add_argument(
+        "--data-dir",
+        default=str(DEFAULT_DATA_DIR),
+        help="Directory containing Adam.json, Bei.json, Victoria.json and the corresponding *_files.xlsx files.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        default=str(DEFAULT_OUTPUT_DIR),
+        help="Directory to write generated figures.",
+    )
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
+    configure_paths(Path(args.data_dir), Path(args.output_dir))
+
     plt.style.use("seaborn-v0_8-whitegrid")
     plt.rcParams.update(
         {
@@ -913,7 +951,7 @@ def main() -> None:
     save_metric_layouts(modality_metric, "modality_count", "Number of Modalities", "modality")
     save_metric_layouts(reasoning_metric, "reasoning_steps", "Number of Reasoning Steps", "reasoning_steps")
 
-    write_readme(scores_by_profile, stats)
+    print(f"Saved figures to: {OUTPUT_DIR}")
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -29,8 +30,10 @@ plt.rcParams.update(
 )
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-DATA_DIR = SCRIPT_DIR.parent / "data"       # analysis/data/
-OUTPUT_DIR = SCRIPT_DIR.parent / "figs"     # analysis/figs/
+DEFAULT_DATA_DIR = SCRIPT_DIR.parent / "data"
+DEFAULT_OUTPUT_DIR = SCRIPT_DIR.parent / "outputs" / "figs"
+DATA_DIR = DEFAULT_DATA_DIR
+OUTPUT_DIR = DEFAULT_OUTPUT_DIR
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 DATASETS = [
     ("Bei_files.xlsx", "(a) Bei", "#ffcbd4"),
@@ -224,7 +227,28 @@ def build_plot(datasets: list[DatasetTimestamps]) -> plt.Figure:
     return fig
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Generate HippoCamp timestamp distribution figure")
+    parser.add_argument(
+        "--data-dir",
+        default=str(DEFAULT_DATA_DIR),
+        help="Directory containing Adam_files.xlsx, Bei_files.xlsx, and Victoria_files.xlsx.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        default=str(DEFAULT_OUTPUT_DIR),
+        help="Directory to write generated figures.",
+    )
+    return parser.parse_args()
+
+
 def main() -> None:
+    global DATA_DIR, OUTPUT_DIR
+    args = parse_args()
+    DATA_DIR = Path(args.data_dir)
+    OUTPUT_DIR = Path(args.output_dir)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
     print("Loading Excel files from:", DATA_DIR)
     datasets: list[DatasetTimestamps] = []
 

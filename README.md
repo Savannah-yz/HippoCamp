@@ -54,26 +54,32 @@ The Hugging Face dataset is the authoritative data release. Its main structure i
 ```text
 HippoCamp/
 ├── Adam/
-│   ├── Subset/Adam_Subset
-│   ├── Subset/Adam_Subset.json
-│   ├── Subset/Adam_Subset.xlsx
-│   ├── Fullset/Adam
-│   ├── Fullset/Adam.json
-│   └── Fullset/Adam_files.xlsx
+│   ├── Subset/
+│   │   ├── Adam_Subset/
+│   │   ├── Adam_Subset.json
+│   │   └── Adam_Subset.xlsx
+│   └── Fullset/
+│       ├── Adam/
+│       ├── Adam.json
+│       └── Adam_files.xlsx
 ├── Bei/
-│   ├── Subset/Bei_Subset
-│   ├── Subset/Bei_Subset.json
-│   ├── Subset/Bei_Subset.xlsx
-│   ├── Fullset/Bei
-│   ├── Fullset/Bei.json
-│   └── Fullset/Bei_files.xlsx
+│   ├── Subset/
+│   │   ├── Bei_Subset/
+│   │   ├── Bei_Subset.json
+│   │   └── Bei_Subset.xlsx
+│   └── Fullset/
+│       ├── Bei/
+│       ├── Bei.json
+│       └── Bei_files.xlsx
 └── Victoria/
-    ├── Subset/Victoria_Subset
-    ├── Subset/Victoria_Subset.json
-    ├── Subset/Victoria_Subset.xlsx
-    ├── Fullset/Victoria
-    ├── Fullset/Victoria.json
-    └── Fullset/Victoria_files.xlsx
+    ├── Subset/
+    │   ├── Victoria_Subset/
+    │   ├── Victoria_Subset.json
+    │   └── Victoria_Subset.xlsx
+    └── Fullset/
+        ├── Victoria/
+        ├── Victoria.json
+        └── Victoria_files.xlsx
 ```
 
 These artifacts play different roles in the release:
@@ -83,7 +89,32 @@ These artifacts play different roles in the release:
 - `HippoCamp_Gold` stores the parsed text version of the benchmark files as JSON. Each item follows the high-level schema `{file_info, summary, segments}`. `file_info` records file identity, modality, timestamps, location metadata, and QA linkage; `segments` keep modality-specific parsed content such as page-level document text or timestamped audio transcription.
 - The `*_files.xlsx` spreadsheets store explicit file metadata such as creation time, modification time, and location fields. The Hugging Face release also provides `HippoCamp/update_metadata_from_xlsx.py` for assigning spreadsheet metadata back to the corresponding files.
 
-For local analysis reproduction, the scripts under `benchmark/analysis/` expect `Adam.json`, `Bei.json`, and `Victoria.json` under `benchmark/analysis/data/`. Those files should be copied from the Hugging Face release; see [`benchmark/analysis/data/README.md`](benchmark/analysis/data/README.md).
+The Hugging Face Dataset Viewer exposes six configs, each with `profiling` and `factual_retention` splits:
+
+| Config | Profile | Scope | Raw files | Total QA | Profiling | Factual retention |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| `adam_fullset` | Adam | Full | 344 | 123 | 20 | 103 |
+| `adam_subset` | Adam | Subset | 158 | 18 | 6 | 12 |
+| `bei_fullset` | Bei | Full | 875 | 235 | 20 | 215 |
+| `bei_subset` | Bei | Subset | 147 | 27 | 4 | 23 |
+| `victoria_fullset` | Victoria | Full | 711 | 223 | 20 | 203 |
+| `victoria_subset` | Victoria | Subset | 137 | 11 | 6 | 5 |
+
+For local analysis reproduction, download the fullset annotation files and metadata spreadsheets from Hugging Face and place them under `benchmark/analysis/data/` exactly as follows:
+
+```bash
+mkdir -p benchmark/analysis/data
+
+cp /path/to/HippoCamp/Adam/Fullset/Adam.json benchmark/analysis/data/Adam.json
+cp /path/to/HippoCamp/Bei/Fullset/Bei.json benchmark/analysis/data/Bei.json
+cp /path/to/HippoCamp/Victoria/Fullset/Victoria.json benchmark/analysis/data/Victoria.json
+
+cp /path/to/HippoCamp/Adam/Fullset/Adam_files.xlsx benchmark/analysis/data/Adam_files.xlsx
+cp /path/to/HippoCamp/Bei/Fullset/Bei_files.xlsx benchmark/analysis/data/Bei_files.xlsx
+cp /path/to/HippoCamp/Victoria/Fullset/Victoria_files.xlsx benchmark/analysis/data/Victoria_files.xlsx
+```
+
+After that, the analysis scripts can be run directly from the repository. See [`benchmark/analysis/README.md`](benchmark/analysis/README.md) for the exact commands.
 
 ## Public Repository Structure
 
@@ -103,11 +134,13 @@ For local analysis reproduction, the scripts under `benchmark/analysis/` expect 
 │   └── paper/HippoCamp.pdf
 ├── benchmark/
 │   ├── README.md
-│   ├── benchmark_example.json
+│   ├── sample_questions.json
 │   ├── configs/
 │   ├── scripts/
 │   ├── src/
 │   ├── analysis/
+│   │   ├── README.md
+│   │   └── data/README.md
 │   └── HippoCamp_Gold/README.md
 └── agent/
     ├── README.md
@@ -167,9 +200,23 @@ Use the dataset pieces as follows:
 
 - **RAG / retriever pipeline**: place the parsed text release under `benchmark/HippoCamp_Gold/`.
 - **Terminal-agent batch evaluation**: use one of the official annotation JSON files such as `Adam.json`, `Adam_Subset.json`, `Bei.json`, or `Victoria_Subset.json` as `--questions-file`.
-- **Analysis reproduction**: copy `Adam.json`, `Bei.json`, and `Victoria.json` into `benchmark/analysis/data/`.
+- **Analysis reproduction**: download the three fullset annotation JSON files and the three fullset metadata spreadsheets from Hugging Face into `benchmark/analysis/data/`.
 
-The lightweight `Adam_files.xlsx`, `Bei_files.xlsx`, and `Victoria_files.xlsx` copies are included under `benchmark/analysis/data/` for convenience. The full authoritative dataset layout, together with `update_metadata_from_xlsx.py`, remains on Hugging Face.
+Concrete local placement for the analysis scripts:
+
+```bash
+mkdir -p benchmark/analysis/data
+
+cp /path/to/HippoCamp/Adam/Fullset/Adam.json benchmark/analysis/data/Adam.json
+cp /path/to/HippoCamp/Bei/Fullset/Bei.json benchmark/analysis/data/Bei.json
+cp /path/to/HippoCamp/Victoria/Fullset/Victoria.json benchmark/analysis/data/Victoria.json
+
+cp /path/to/HippoCamp/Adam/Fullset/Adam_files.xlsx benchmark/analysis/data/Adam_files.xlsx
+cp /path/to/HippoCamp/Bei/Fullset/Bei_files.xlsx benchmark/analysis/data/Bei_files.xlsx
+cp /path/to/HippoCamp/Victoria/Fullset/Victoria_files.xlsx benchmark/analysis/data/Victoria_files.xlsx
+```
+
+The public repository intentionally does not ship those analysis inputs. They should be downloaded from Hugging Face into the paths above.
 
 ### 5. Install Docker Desktop
 
@@ -275,34 +322,34 @@ python3 scripts/run_offline.py HippoCamp_Gold/ --all -e hippo
 python3 scripts/retriever_server.py -e hippo -p 18000
 ```
 
-6. Run the released methods. Replace `benchmark_example.json` with one of the official Hugging Face annotation JSONs for full benchmark evaluation.
+6. Run the released methods. Replace `sample_questions.json` with one of the official Hugging Face annotation JSONs for full benchmark evaluation.
 
 ```bash
 # Standard RAG
-python3 scripts/run_query.py --batch benchmark_example.json -e hippo \
+python3 scripts/run_query.py --batch sample_questions.json -e hippo \
   --retrieval standard_rag --generator gemini --evaluate
 
 # Self RAG
-python3 scripts/run_query.py --batch benchmark_example.json -e hippo \
+python3 scripts/run_query.py --batch sample_questions.json -e hippo \
   --retrieval self_rag --generator gemini --evaluate
 
 # ReAct (Gemini-2.5-flash)
-python3 scripts/run_query.py --batch benchmark_example.json -e hippo \
+python3 scripts/run_query.py --batch sample_questions.json -e hippo \
   --generator gemini_react --evaluate
 
 # ReAct (Qwen3-30B-A3B)
-python3 scripts/run_query.py --batch benchmark_example.json -e hippo \
+python3 scripts/run_query.py --batch sample_questions.json -e hippo \
   --generator qwen_react --evaluate
 
 # Search-R1
-python3 scripts/run_query.py --batch benchmark_example.json -e hippo \
+python3 scripts/run_query.py --batch sample_questions.json -e hippo \
   --generator search_r1 --evaluate
 ```
 
 7. Run standalone evaluation on saved results:
 
 ```bash
-python3 scripts/run_evaluation.py analysis/result/finance_standardrag/evaluation_results.json \
+python3 scripts/run_evaluation.py /path/to/your_saved_query_results.json \
   --metrics rouge bleu retrieval_precision retrieval_recall retrieval_f1 \
   --limit 1 --no-save
 ```

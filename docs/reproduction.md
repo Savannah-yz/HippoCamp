@@ -34,7 +34,7 @@ The authoritative data release lives on Hugging Face:
 
 Use the released data pieces as follows:
 
-- The six source directories under `HippoCamp/{Adam,Bei,Victoria}/{Subset,Fullset}/...` store the raw personal-computing-environment files.
+- The six source directories under `HippoCamp/Adam/{Subset,Fullset}/...`, `HippoCamp/Bei/{Subset,Fullset}/...`, and `HippoCamp/Victoria/{Subset,Fullset}/...` store the raw personal-computing-environment files.
 - The six annotation JSON files such as `Adam.json`, `Adam_Subset.json`, `Victoria.json`, and `Victoria_Subset.json` store the released QA pairs and explicit annotations.
 - `HippoCamp_Gold` stores parsed text JSON files with the schema `{file_info, summary, segments}`.
 - The `*_files.xlsx` spreadsheets store creation time, modification time, and location-oriented metadata. The Hugging Face release also includes `HippoCamp/update_metadata_from_xlsx.py`.
@@ -42,10 +42,24 @@ Use the released data pieces as follows:
 For local use in this repository:
 
 - Place the parsed text release under `benchmark/HippoCamp_Gold/`.
-- Copy `Adam.json`, `Bei.json`, and `Victoria.json` into `benchmark/analysis/data/` if you want to reproduce the analysis figures.
+- Download the fullset analysis inputs into `benchmark/analysis/data/` if you want to reproduce the analysis figures.
 - Use one of the official annotation JSONs directly as `--questions-file` for terminal-agent batch evaluation.
 
-`benchmark/benchmark_example.json` is only a lightweight smoke-test file. It is not the full benchmark release.
+Concrete analysis-input placement:
+
+```bash
+mkdir -p benchmark/analysis/data
+
+cp /path/to/HippoCamp/Adam/Fullset/Adam.json benchmark/analysis/data/Adam.json
+cp /path/to/HippoCamp/Bei/Fullset/Bei.json benchmark/analysis/data/Bei.json
+cp /path/to/HippoCamp/Victoria/Fullset/Victoria.json benchmark/analysis/data/Victoria.json
+
+cp /path/to/HippoCamp/Adam/Fullset/Adam_files.xlsx benchmark/analysis/data/Adam_files.xlsx
+cp /path/to/HippoCamp/Bei/Fullset/Bei_files.xlsx benchmark/analysis/data/Bei_files.xlsx
+cp /path/to/HippoCamp/Victoria/Fullset/Victoria_files.xlsx benchmark/analysis/data/Victoria_files.xlsx
+```
+
+`benchmark/sample_questions.json` is only a lightweight smoke-test file. It is not the full benchmark release.
 
 ## RAG / search-agent pipeline
 
@@ -80,50 +94,75 @@ python3 scripts/retriever_server.py -e hippo -p 18000
 
 ### 4. Run the released methods
 
-For smoke tests you can use `benchmark_example.json`. For full runs, replace it with one of the official Hugging Face annotation JSONs.
+For smoke tests you can use `sample_questions.json`. For full runs, replace it with one of the official Hugging Face annotation JSONs.
 
 Standard RAG:
 
 ```bash
-python3 scripts/run_query.py --batch benchmark_example.json -e hippo \
+python3 scripts/run_query.py --batch sample_questions.json -e hippo \
   --retrieval standard_rag --generator gemini --evaluate
 ```
 
 Self RAG:
 
 ```bash
-python3 scripts/run_query.py --batch benchmark_example.json -e hippo \
+python3 scripts/run_query.py --batch sample_questions.json -e hippo \
   --retrieval self_rag --generator gemini --evaluate
 ```
 
 ReAct (Gemini-2.5-flash):
 
 ```bash
-python3 scripts/run_query.py --batch benchmark_example.json -e hippo \
+python3 scripts/run_query.py --batch sample_questions.json -e hippo \
   --generator gemini_react --evaluate
 ```
 
 ReAct (Qwen3-30B-A3B):
 
 ```bash
-python3 scripts/run_query.py --batch benchmark_example.json -e hippo \
+python3 scripts/run_query.py --batch sample_questions.json -e hippo \
   --generator qwen_react --evaluate
 ```
 
 Search-R1:
 
 ```bash
-python3 scripts/run_query.py --batch benchmark_example.json -e hippo \
+python3 scripts/run_query.py --batch sample_questions.json -e hippo \
   --generator search_r1 --evaluate
 ```
 
 ### 5. Standalone evaluation
 
 ```bash
-python3 scripts/run_evaluation.py analysis/result/finance_standardrag/evaluation_results.json \
+python3 scripts/run_evaluation.py /path/to/your_saved_query_results.json \
   --metrics rouge bleu retrieval_precision retrieval_recall retrieval_f1 \
   --limit 1 --no-save
 ```
+
+## Benchmark analysis
+
+Run the analysis scripts from the repository root after downloading the six fullset files into `benchmark/analysis/data/`.
+
+Difficulty statistics and figure generation:
+
+```bash
+python3 benchmark/analysis/difficulty/generate_difficulty_reports.py
+```
+
+Timestamp distribution figure:
+
+```bash
+python3 benchmark/analysis/file_time/file_combined_boxplot.py
+```
+
+Difficulty-vs-performance requires your own local evaluation outputs:
+
+```bash
+python3 benchmark/analysis/difficulty_vs_performance/difficulty_performance_plot.py \
+  --results-root /path/to/your/local_eval_results
+```
+
+All generated analysis figures are written to `benchmark/analysis/outputs/figs/`.
 
 ## Terminal-agent pipeline
 
