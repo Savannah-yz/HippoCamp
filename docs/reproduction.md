@@ -13,16 +13,10 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-Optional local-model extras:
-
-```bash
-pip install -r requirements-local.txt
-```
-
 For the RAG subsystem:
 
 ```bash
-pip install -e ./HippoCamp
+pip install -e ./benchmark
 ```
 
 If you see matplotlib or fontconfig cache warnings, set:
@@ -34,12 +28,12 @@ export MPLCONFIGDIR=$PWD/.cache/matplotlib
 
 ## RAG / search-agent pipeline
 
-Run all commands from `HippoCamp/`.
+Run all commands from `benchmark/`.
 
 ### 1. Place benchmark data
 
-- Download `HippoCamp_Gold` from Hugging Face and place it under `HippoCamp/HippoCamp_Gold/`.
-- Place `Adam.json`, `Bei.json`, and `Victoria.json` under `HippoCamp/analysis/data/` if you
+- Download `HippoCamp_Gold` from Hugging Face and place it under `benchmark/HippoCamp_Gold/`.
+- Place `Adam.json`, `Bei.json`, and `Victoria.json` under `benchmark/analysis/data/` if you
   want to reproduce the analysis figures.
 
 ### 2. Configure services
@@ -171,7 +165,7 @@ python3 agent/vllm.py \
 ```bash
 python3 agent/chatgpt_batch.py \
   --container hippocamp-adam-subset \
-  --questions-file HippoCamp/benchmark_example.json \
+  --questions-file benchmark/benchmark_example.json \
   --log-dir log/chatgpt_batch \
   --result-dir result/chatgpt_batch
 ```

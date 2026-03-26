@@ -17,14 +17,14 @@ results/
 
 # Downloaded benchmark assets
 hippocamp_*.tar
-HippoCamp/HippoCamp_Gold/*
-!HippoCamp/HippoCamp_Gold/README.md
-HippoCamp/analysis/data/*.json
-!HippoCamp/analysis/data/README.md
+benchmark/HippoCamp_Gold/*
+!benchmark/HippoCamp_Gold/README.md
+benchmark/analysis/data/*.json
+!benchmark/analysis/data/README.md
 
 # Local-only materials kept outside the public release surface
 arxiv/
 README_zh.md
-HippoCamp/README_CN.md
-HippoCamp/.env.example
+benchmark/README_CN.md
+benchmark/.env.example
 data/

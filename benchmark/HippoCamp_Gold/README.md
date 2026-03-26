@@ -4,13 +4,13 @@
 
 Download the released benchmark data from:
 
-- <https://huggingface.co/datasets/MMMem-org/HippoCamp/tree/main/HippoCamp_Gold>
+- <https://huggingface.co/datasets/MMMem-org/HippoCamp>
 
 Place the extracted profile folders under this directory so the existing scripts keep
 their public paths unchanged:
 
 ```text
-HippoCamp/HippoCamp_Gold/
+benchmark/HippoCamp_Gold/
 ├── Adam/
 ├── Bei/
 └── Victoria/

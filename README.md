@@ -1,11 +1,12 @@
 # HippoCamp: Benchmarking Contextual Agents on Personal Computers
 
-HippoCamp is a benchmark for evaluating contextual agents on realistic personal-computing environments. It focuses on personalized multimodal memory: agents must search, perceive, and reason over long-lived file systems that contain heterogeneous user-specific evidence spread across documents, images, audio, video, emails, calendars, and other everyday digital artifacts.
+We present HippoCamp, a benchmark designed to evaluate agents' capabilities on multimodal file management. Unlike existing agent benchmarks that focus on tasks like web interaction, tool use, or software automation in generic settings, HippoCamp evaluates agents in user-centric environments to model individual user profiles and search from massive personal files for context-aware reasoning. Our benchmark instantiates device-scale file systems over real-world profiles spanning diverse modalities, comprising 42.4 GB of data across over 2K real-world files. Building upon the raw files, we construct 581 QA pairs to assess agents' capabilities in search, evidence perception, and multi-step reasoning. To facilitate fine-grained analysis, we provide 46.1K densely annotated structured trajectories for step-wise failure diagnosis.
 
 [![Project Page](https://img.shields.io/badge/Project-Page-1f6feb)](https://savannah-yz.github.io/project_page/HippoCamp/)
-[![Data Visualization](https://img.shields.io/badge/Data-Visualization-0a7ea4)](https://savannah-yz.github.io/data_visualization/HippoCamp/)
-[![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Dataset-f59e0b)](https://huggingface.co/datasets/MMMem-org/HippoCamp/tree/main/HippoCamp_Gold)
+[![Website Demo](https://img.shields.io/badge/Website-Demo-0a7ea4)](https://savannah-yz.github.io/data_visualization/HippoCamp/)
+[![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Dataset-f59e0b)](https://huggingface.co/datasets/MMMem-org/HippoCamp)
 [![Paper](https://img.shields.io/badge/Paper-PDF-b91c1c)](docs/paper/HippoCamp.pdf)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-111827)](https://github.com/Savannah-yz/HippoCamp)
 [![Leaderboard](https://img.shields.io/badge/Leaderboard-Project%20Page-16a34a)](https://savannah-yz.github.io/project_page/HippoCamp/)
 [![Video](https://img.shields.io/badge/Video-XXXXXXX-6b7280)](XXXXXXX)
 [![Docker Images](https://img.shields.io/badge/Docker-Images-2496ed)](XXXXXXX)
@@ -16,15 +17,15 @@ HippoCamp is a benchmark for evaluating contextual agents on realistic personal-
 
 ## News
 
-- `[XX/XX/2026]`: Submitted to ECCV.
+- `[02/15/2026]`: Submitted to ECCV.
 - `[03/26/2026]`: GitHub repository released.
 
 ## Overview
 
-HippoCamp instantiates three archetypal personal-computing profiles and evaluates two core task families:
+HippoCamp models three archetypal personal-computing environments and evaluates two task families defined in the paper:
 
-- **Factual retention**: retrieve and verify user-specific facts from multimodal files.
-- **Profiling**: infer stable user patterns, preferences, workflows, and habits from long-horizon evidence.
+- **Factual retention**: evaluate an agent's capability to retrieve, comprehend, and reason over factual information distributed across multimodal files within the user's device. In Appendix C.1.1, the paper further describes factual retention as covering atomic fact retrieval, document-level localization, temporal or comparative fact recovery, and normative clause extraction, with answers required to remain fully traceable to explicit file-grounded evidence.
+- **Profiling**: evaluate whether an agent can construct a coherent user-level model from device-resident files by aggregating grounded personal facts across time. In the paper, profiling queries rely on weak, distributed signals across files, modalities, and time, and are further decomposed into preferences, behavioral patterns, scheduling information, retrospective reflections, and workflows.
 
 The released benchmark covers:
 
@@ -33,27 +34,25 @@ The released benchmark covers:
 - **581** QA pairs
 - **46.1K** structured trajectory annotations
 - **3** user profiles
-- **2** task families (Profiling & Factual Retention)
+- **2** task families
 
 ## What Is Released
 
 This public release separates code, data, and Docker artifacts cleanly:
 
-- **GitHub**: evaluation code, agent code, configs, public documentation, paper PDF, public figures, and result assets.
+- **GitHub**: code, configs, documentation, paper PDF, public figures, and released result assets.
 - **Hugging Face**: benchmark data, including `HippoCamp_Gold` and the released benchmark annotations used by the analysis scripts.
 - **Google Drive**: Docker image archives for the six benchmark environments.
 - **Project Page**: leaderboard and additional presentation material.
+- **Website Demo**: interactive benchmark visualization.
 
 ## Public Repository Structure
-
-The public release surface is organized as:
 
 ```text
 .
 ├── README.md
 ├── .env.example
 ├── requirements.txt
-├── requirements-local.txt
 ├── evaluate.py
 ├── CITATION.cff
 ├── assets/
@@ -63,7 +62,7 @@ The public release surface is organized as:
 │   ├── docker_api.md
 │   ├── reproduction.md
 │   └── paper/HippoCamp.pdf
-├── HippoCamp/
+├── benchmark/
 │   ├── README.md
 │   ├── benchmark_example.json
 │   ├── configs/
@@ -85,8 +84,8 @@ The public release surface is organized as:
 ### 1. Clone and create a Python environment
 
 ```bash
-git clone <your-public-repo-url>
-cd release
+git clone https://github.com/Savannah-yz/HippoCamp.git
+cd HippoCamp
 
 python3 -m venv .venv
 source .venv/bin/activate
@@ -94,16 +93,14 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-Optional local-model extras for Qwen / Search-R1 experiments:
+This public release uses a single `requirements.txt`. It already includes the local-model
+dependencies used by the released Qwen / Search-R1 baselines, so there is no second
+requirements file to manage.
+
+Optional editable install for the benchmark RAG subsystem:
 
 ```bash
-pip install -r requirements-local.txt
-```
-
-Optional editable install for the HippoCamp RAG subsystem:
-
-```bash
-pip install -e ./HippoCamp
+pip install -e ./benchmark
 ```
 
 ### 2. Configure runtime caches
@@ -124,7 +121,7 @@ The same defaults are also documented in `.env.example`.
 cp .env.example .env
 ```
 
-The merged root `.env` is loaded by the public scripts. It groups:
+The merged root `.env` groups:
 
 - terminal-agent API keys
 - RAG / generator API keys
@@ -136,18 +133,18 @@ The merged root `.env` is loaded by the public scripts. It groups:
 
 Download the released benchmark data from Hugging Face:
 
-- [https://huggingface.co/datasets/MMMem-org/HippoCamp/tree/main/HippoCamp_Gold](https://huggingface.co/datasets/MMMem-org/HippoCamp/tree/main/HippoCamp_Gold)
+- [https://huggingface.co/datasets/MMMem-org/HippoCamp](https://huggingface.co/datasets/MMMem-org/HippoCamp)
 
 Place the extracted gold data under:
 
 ```text
-HippoCamp/HippoCamp_Gold/
+benchmark/HippoCamp_Gold/
 ├── Adam/
 ├── Bei/
 └── Victoria/
 ```
 
-For analysis reproduction, place these annotation JSON files under `HippoCamp/analysis/data/`:
+For analysis reproduction, place these annotation JSON files under `benchmark/analysis/data/`:
 
 - `Adam.json`
 - `Bei.json`
@@ -169,12 +166,12 @@ Google Drive links.
 
 | Image                              | Profile  | Variant | Download    |
 | ---------------------------------- | -------- | ------- | ----------- |
-| `hippocamp_bei_subset.tar`       | Bei      | Subset  | `XXXXXXX` |
-| `hippocamp_bei_fullset.tar`      | Bei      | Fullset | `XXXXXXX` |
-| `hippocamp_adam_subset.tar`      | Adam     | Subset  | `XXXXXXX` |
-| `hippocamp_adam_fullset.tar`     | Adam     | Fullset | `XXXXXXX` |
-| `hippocamp_victoria_subset.tar`  | Victoria | Subset  | `XXXXXXX` |
-| `hippocamp_victoria_fullset.tar` | Victoria | Fullset | `XXXXXXX` |
+| `hippocamp_bei_subset.tar`         | Bei      | Subset  | `XXXXXXX`   |
+| `hippocamp_bei_fullset.tar`        | Bei      | Fullset | `XXXXXXX`   |
+| `hippocamp_adam_subset.tar`        | Adam     | Subset  | `XXXXXXX`   |
+| `hippocamp_adam_fullset.tar`       | Adam     | Fullset | `XXXXXXX`   |
+| `hippocamp_victoria_subset.tar`    | Victoria | Subset  | `XXXXXXX`   |
+| `hippocamp_victoria_fullset.tar`   | Victoria | Fullset | `XXXXXXX`   |
 
 Load the images:
 
@@ -205,14 +202,14 @@ docker run -it -p 8086:8080 --name hippocamp-victoria-fullset hippocamp/victoria
 
 HippoCamp exposes two complementary reproduction paths:
 
-- a **RAG / search-agent** pipeline under `HippoCamp/`
+- a **RAG / search-agent** pipeline under `benchmark/`
 - a **terminal-agent** pipeline under `agent/`
 
 Longer command cookbooks are collected in [`docs/reproduction.md`](docs/reproduction.md).
 
 ### A. RAG / Search-Agent Pipeline
 
-Run these commands from `HippoCamp/`.
+Run these commands from `benchmark/`.
 
 Start Qdrant if you use the default local setup:
 
@@ -306,7 +303,7 @@ Batch example:
 ```bash
 python3 agent/chatgpt_batch.py \
   --container hippocamp-adam-subset \
-  --questions-file HippoCamp/benchmark_example.json \
+  --questions-file benchmark/benchmark_example.json \
   --log-dir log/chatgpt_batch \
   --result-dir result/chatgpt_batch
 ```
@@ -345,11 +342,9 @@ Recommended development workflow:
 
 1. Start from `agent/gemini.py` or `agent/vllm.py`.
 2. Keep the terminal tool contract unchanged.
-3. Use the Docker-exposed commands (`list_files`, `return_txt`, `return_img`, `return_ori`,
-   `return_metadata`, `set_flags`) as the only environment interface.
+3. Use the Docker-exposed commands (`list_files`, `return_txt`, `return_img`, `return_ori`, `return_metadata`, `set_flags`) as the only environment interface.
 4. Preserve the output JSON shape expected by the batch runners.
-5. Ensure the batch result records expose `agent_file_list`, since the evaluators compute
-   file-level metrics from those touched paths.
+5. Ensure the batch result records expose `agent_file_list`, since the evaluators compute file-level metrics from those touched paths.
 
 The batch runners already extract file paths from command traces, including direct calls to:
 
@@ -411,14 +406,14 @@ is underlined.
 `15_Evidence` measures evidence breadth: the number of ground-truth supporting files per
 query. In the released code, this is read from `file_number` when present and otherwise
 falls back to `len(file_path)`. It directly captures retrieval breadth and shows the
-benchmark’s multi-file heavy tail.
+benchmark's multi-file heavy tail.
 
 #### Modality breadth
 
 ![Modality breadth](assets/figs/16_Modality.png)
 
 `16_Modality` measures modality breadth: the number of distinct values in `file_modality`
-for a query. This is the benchmark’s direct proxy for cross-modal grounding burden.
+for a query. This is the benchmark's direct proxy for cross-modal grounding burden.
 
 #### Reasoning depth
 
