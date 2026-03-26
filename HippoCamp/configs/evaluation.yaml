@@ -1,0 +1,162 @@
+# =============================================================================
+# Evaluation Configuration
+# =============================================================================
+#
+# Controls how RAG query results are evaluated.
+# Used by: scripts/run_query.py (--evaluate / --eval-only)
+#
+# CLI flags override values in this file:
+#   --eval-mode       overrides eval_mode
+#   --metrics         overrides metrics
+#   --judge-template  overrides llm_judge.prompt_template
+#
+# =============================================================================
+
+# Evaluation mode: "simple" | "llm" | "all"
+#   simple : ROUGE, BLEU, Semantic Similarity, Retrieval metrics (no LLM API)
+#   llm    : LLM Judge only (requires Azure OpenAI API)
+#   all    : All metrics (simple + LLM Judge)
+eval_mode: "simple"
+
+# Custom metrics list (overrides eval_mode when set)
+# Available: rouge, bleu, semantic_similarity, retrieval_precision,
+#            retrieval_recall, retrieval_f1, llm_judge
+# metrics:
+#   - rouge
+#   - bleu
+#   - llm_judge
+
+# File list metrics: compute F1, recall, precision for file retrieval
+# Set to false to disable by default (can still enable with --file-list)
+file_list: true
+
+# =============================================================================
+# LLM Judge Configuration
+# =============================================================================
+llm_judge:
+  # Prompt template: "simple" or "detailed"
+  #   simple   : Fast, minimal prompt. ~64 output tokens. Good for large-scale batch eval.
+  #   detailed : Chain-of-Thought with structured rubric and rationale.
+  #              ~512 output tokens. More accurate, better for debugging.
+  prompt_template: "simple"
+
+  # Azure OpenAI API settings (can also be set via environment variables)
+  # If not set here, falls back to env vars:
+  #   AZURE_OPENAI_ENDPOINT / GPT4O_MINI_API
+  #   AZURE_OPENAI_API_KEY  / GPT4O_MINI_KEY
+  # api_url: ""
+  # api_key: ""
+
+  # Request settings
+  timeout: 60
+  max_retries: 3
+
+  # ---------------------------------------------------------------------------
+  # Prompt Templates
+  # ---------------------------------------------------------------------------
+  # Each template has "system", "user", and "max_tokens".
+  # The user prompt supports these placeholders:
+  #   {question}      - The original query
+  #   {ground_truth}  - The expected answer
+  #   {model_answer}  - The model-generated answer
+  #
+  # OUTPUT CONTRACT (do not break):
+  #   The model MUST return a JSON object with at least:
+  #     {"pred": "yes"/"no", "score": INTEGER 0-5}
+  #   Optionally: {"rationale": "..."}
+  #   The parser (_safe_parse_pred_score) depends on this format.
+  # ---------------------------------------------------------------------------
+  prompts:
+    simple:
+      max_tokens: 64
+      system: |
+        You are an evaluation assistant. Compare the model output with the ground truth and judge meaningful match.
+        Rules:
+        - Focus on semantic equivalence, allow paraphrase and synonyms.
+        - If model adds extra but non-conflicting details, that's OK; penalize if it misses key points.
+        - Score is an INTEGER 0..5 (5=excellent match, 0=totally incorrect).
+        - Output STRICTLY a JSON object with keys 'pred' ('yes'/'no') and 'score' (INTEGER).
+        Example outputs: {"pred":"yes","score":4} or {"pred":"no","score":1}
+      user: |
+        Please evaluate the following QA pair:
+
+        Question:
+        {question}
+
+        Ground Truth:
+        {ground_truth}
+
+        Model Answer:
+        {model_answer}
+
+        Return ONLY a JSON object with keys 'pred' and 'score' as specified.
+
+    detailed:
+      max_tokens: 512
+      system: |
+        You are an expert RAG evaluation assistant. Your task is to rigorously compare a model-generated answer against a ground truth reference and produce a structured judgment.
+
+        # EVALUATION DIMENSIONS
+        You MUST evaluate along these four dimensions:
+        1. **Factual Accuracy**: Are the facts in the model answer correct and consistent with the ground truth?
+        2. **Completeness**: Does the model answer cover ALL key points present in the ground truth?
+        3. **Relevance**: Is the answer focused on the question without introducing irrelevant or misleading information?
+        4. **Specificity**: Does the answer preserve specific details (names, numbers, dates, quantities) from the ground truth?
+
+        # SCORING RUBRIC (0-5 INTEGER scale)
+        - 5 (Excellent): Semantically equivalent to ground truth. All key facts, entities, and details are present. Minor paraphrasing is fine.
+        - 4 (Good): Captures all major points with at most minor omissions of secondary details. No factual errors.
+        - 3 (Acceptable): Covers the main idea correctly but misses some important details or includes minor inaccuracies.
+        - 2 (Partial): Gets the general topic right but misses multiple key points or contains notable factual errors.
+        - 1 (Poor): Only tangentially related to the ground truth or contains significant factual errors.
+        - 0 (Wrong): Completely incorrect, irrelevant, or contradicts the ground truth.
+
+        # CRITICAL REQUIREMENTS
+        - NEVER ignore specific names, numbers, dates, or quantities — compare them explicitly.
+        - Allow paraphrasing and synonyms, but NOT factual substitutions (e.g., different names or numbers).
+        - Extra non-conflicting details are acceptable; MISSING key information must be penalized.
+        - You MUST follow the structured Chain-of-Thought process below before scoring.
+
+        # OUTPUT FORMAT
+        You MUST output a single JSON object with these keys:
+        - "pred": "yes" if score >= 3, "no" otherwise
+        - "score": INTEGER 0..5
+        - "rationale": A concise string (2-4 sentences) summarizing your judgment
+
+        Example:
+        {"pred":"yes","score":4,"rationale":"The answer correctly identifies X and Y. It omits the specific date (Jan 2024) mentioned in ground truth, but all other facts are accurate."}
+      user: |
+        Evaluate the following QA pair using the structured process below.
+
+        ---
+        Question:
+        {question}
+
+        Ground Truth:
+        {ground_truth}
+
+        Model Answer:
+        {model_answer}
+        ---
+
+        ## STEP 1: KEY FACTS EXTRACTION
+        List the key facts, entities, numbers, and details from the Ground Truth.
+
+        ## STEP 2: FACT-BY-FACT COMPARISON
+        For each key fact from Step 1, check whether the Model Answer includes it correctly.
+        Mark each as: MATCH / MISSING / INCORRECT / PARAPHRASED.
+
+        ## STEP 3: EXTRA INFORMATION CHECK
+        Note any extra information in the Model Answer not present in Ground Truth.
+        Is it non-conflicting (acceptable) or contradictory (penalize)?
+
+        ## STEP 4: DIMENSION SCORING
+        Rate each dimension (1-5):
+        - Factual Accuracy:
+        - Completeness:
+        - Relevance:
+        - Specificity:
+
+        ## STEP 5: FINAL JUDGMENT
+        Based on the above analysis, output ONLY a JSON object:
+        {"pred": "yes/no", "score": <0-5>, "rationale": "<2-4 sentence summary>"}

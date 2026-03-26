@@ -1,0 +1,6 @@
+-r requirements.txt
+
+# Optional local model backends for Search-R1 / Qwen ReAct / local experiments
+transformers>=4.40.0
+torch>=2.0.0
+accelerate>=0.25.0

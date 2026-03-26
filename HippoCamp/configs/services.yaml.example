@@ -1,0 +1,216 @@
+# Services Configuration
+# ======================
+# Unified service providers for all pipelines (RAG + User Memory).
+# Switch between local and cloud by changing the 'profile' setting.
+#
+# Usage:
+#   from src.shared.service_factory import SharedServiceFactory
+#   factory = SharedServiceFactory.from_yaml("configs/services.yaml")
+
+# Active Profile
+# --------------
+# Options: "local", "cloud", "deepinfra"
+profile: "deepinfra"
+
+# =============================================================================
+# Service Profiles
+# =============================================================================
+
+profiles:
+  # ---------------------------------------------------------------------------
+  # Local Mode (llama.cpp)
+  # ---------------------------------------------------------------------------
+  # For development, testing, and offline usage.
+  # Requires running local services on ports 8005-8007.
+  local:
+    embedding:
+      provider: "llamacpp"
+      endpoint: "http://127.0.0.1:8005"
+      model: "Qwen3-Embedding-0.6B-Q4_K_M"
+      dimension: 1024
+      max_batch_size: 32
+      split_on_failure: true
+      timeout: 60
+    vectordb:
+      type: "qdrant"
+      url: "http://127.0.0.1:6333"
+      timeout: 60
+      api_key: "" # optional; for Qdrant Cloud
+      dimension: 1024
+      metric_type: "DOT" # COSINE | DOT | EUCLID set > 0 to filter low-similarity hits
+      batch_size: 128
+      sparse_vectors_config:
+        sparse:
+            on_disk: true
+            full_scan_threshold: 50000
+        modifier: "idf"  # SparseVectorParams field
+      # path: "./data/vector_store/qdrant"  # optional; url takes precedence
+      index_params:
+        hnsw_config:
+          m: 32
+          ef_construct: 300
+          on_disk: true
+          max_indexing_threads: 5
+        optimizers_config:
+          indexing_threshold: 30000
+          flush_interval_sec: 600
+          memmap_threshold: 3000000000
+
+
+    # vectordb:
+    #   type: "qdrant"
+    #   path: "./data/vector_store/qdrant"
+    #   prefer_grpc: false
+    #   enable_sparse: true
+    #   dimension: 1024
+    #   metric_type: "COSINE"
+    #   index_params:
+    #     hnsw_config:
+    #       m: 32
+    #       # ef_construct: ignored in embedded mode (defaults to 100)
+    #     optimizers_config:
+    #       indexing_threshold: 30000
+    #       flush_interval_sec: 50
+          # memmap_threshold: ignored in embedded mode
+      # Example sparse vectors config (not wired to code yet)
+      # sparse_vectors_config:
+      #   sparse:
+      #     # fields depend on Qdrant SparseVectorParams
+      #     # e.g., on_disk: false
+
+    llm:
+      provider: "llamacpp"
+      endpoint: "http://127.0.0.1:8007"
+      model: "Qwen3-0.6B-Q8_0"
+      timeout: 120
+      max_tokens: 2048  # Increased to avoid response truncation
+
+    rerank:
+      provider: "llamacpp"
+      endpoint: "http://127.0.0.1:8006"
+      model: "Qwen3-Reranker-0.6B-Q4_K_M"
+      timeout: 30
+
+  # ---------------------------------------------------------------------------
+  # Cloud Mode (Cohere + Milvus Cloud + Azure OpenAI)
+  # ---------------------------------------------------------------------------
+  # For production and high-quality results.
+  # Requires API keys in .env file.
+  cloud:
+    embedding:
+      provider: "cohere"
+      model: "embed-v4.0"
+      dimension: 1536
+      max_batch_size: 32
+      # Environment: COHERE_API_KEY
+
+    vectordb:
+      type: "milvus"
+      dimension: 1536
+      metric_type: "COSINE"
+      # Reads from .env: VECTOR_DB_ENDPOINT, VECTOR_DB_API_KEY
+
+    # -------------------------------------------------------------------------
+    # LLM Configuration
+    # -------------------------------------------------------------------------
+    # Available providers:
+    #   - azure:  Azure OpenAI (requires TOOLS_LLM_API_KEY, TOOLS_LLM_ENDPOINT)
+    #   - openai: OpenAI API (requires OPENAI_API_KEY)
+    #   - gemini: Google Gemini (requires GEMINI_API_KEY)
+    #
+    # Example configurations:
+    #
+    # Azure OpenAI:
+    #   provider: "azure"
+    #   model: "gpt-4o"
+    #
+    # OpenAI:
+    #   provider: "openai"
+    #   model: "gpt-4o"
+    #
+    # Gemini:
+    #   provider: "gemini"
+    #   model: "gemini-2.0-flash"    # or "gemini-2.5-flash"
+    # -------------------------------------------------------------------------
+    llm:
+      # provider: "azure"
+      # model: "gpt-4o"
+      provider: "gemini"
+      model: "gemini-2.5-flash"
+      timeout: 30
+      max_tokens: 2048  # Increased to avoid response truncation
+
+    rerank:
+      provider: "cohere"
+      model: "rerank-v3.5"
+      top_k: 20
+      # Environment: COHERE_API_KEY
+
+  # ---------------------------------------------------------------------------
+  # DeepInfra API Mode (OpenAI-compatible API)
+  # ---------------------------------------------------------------------------
+  # For cloud-based embeddings using DeepInfra's OpenAI-compatible API.
+  # Requires DEEPINFRA_EMBEDDING_API_KEY and DEEPINFRA_RERANK_API_KEY in .env file.
+  # No local model or service required.
+  deepinfra:
+    embedding:
+      provider: "deepinfra"
+      model: "Qwen/Qwen3-Embedding-0.6B"
+      dimension: 1024
+      max_batch_size: 256
+      max_concurrent: 32
+      encoding_format: "float"
+      retry_max_attempts: 3
+      api_key_env: "DEEPINFRA_EMBEDDING_API_KEY"
+      # Environment: DEEPINFRA_EMBEDDING_API_KEY
+
+    vectordb:
+      type: "qdrant"
+      url: "http://127.0.0.1:6333"
+      timeout: 60
+      api_key: "" # optional; for Qdrant Cloud
+      dimension: 1024
+      metric_type: "DOT" # COSINE | DOT | EUCLID set > 0 to filter low-similarity hits
+      batch_size: 128
+      sparse_vectors_config:
+        sparse:
+            on_disk: true
+            full_scan_threshold: 50000
+        modifier: "idf"  # SparseVectorParams field
+      index_params:
+        hnsw_config:
+          m: 32
+          ef_construct: 300
+          on_disk: true
+          max_indexing_threads: 5
+        optimizers_config:
+          indexing_threshold: 30000
+          flush_interval_sec: 600
+          memmap_threshold: 3000000000
+
+    llm:
+      provider: "llamacpp"
+      endpoint: "http://127.0.0.1:8007"
+      model: "Qwen3-0.6B-Q8_0"
+      timeout: 120
+      max_tokens: 2048
+
+    rerank:
+      provider: "llamacpp"
+      endpoint: "http://127.0.0.1:8006"
+      model: "Qwen3-Reranker-0.6B-Q4_K_M"
+      timeout: 30
+
+# =============================================================================
+# Collection Names
+# =============================================================================
+# Shared across profiles
+
+collections:
+  # RAG collections (suffixed with experiment_id)
+  rag: "research_rag"
+
+  # User Memory collections
+  user_profile: "synvo_user_profile"
+  user_event: "synvo_user_event"
+  user_atomic_facts: "synvo_user_atomic_facts"

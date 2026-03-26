@@ -1,0 +1,93 @@
+# Ingestion Pipeline Configuration
+# ================================
+# Converts files (PDF, video, image, audio) to structured metadata.
+# Text files (txt, xml) bypass captioning and go directly to chunking.
+#
+# Usage:
+#   python scripts/run_ingestion.py <file_path> --config configs/pipelines/ingestion.yaml
+#
+# Backend Options:
+#   - "gemini": Uses Gemini API (cloud, requires GEMINI_API_KEY)
+#   - "llamacpp": Uses local VLM via llama.cpp server (port 8004)
+#   - Text files (txt, xml): No backend needed, bypasses captioning
+
+# Backend models for each file type
+backend_models:
+  # PDF Backend
+  pdf:
+    backend_type: "gemini"  # Options: "gemini", "llamacpp"
+    model: "gemini-2.5-flash"
+    api_key_env: "GEMINI_API_KEY"
+    max_retries: 3
+    retry_wait_seconds: 10
+    num_processes: 5
+    # For llamacpp backend:
+    # backend_type: "llamacpp"
+    # endpoint: "http://127.0.0.1:8004"
+    # model: "Qwen3VL-2B-Instruct-Q4_K_M"
+
+  # Video Backend
+  video:
+    backend_type: "gemini"  # Options: "gemini", "llamacpp"
+    model: "gemini-2.0-flash"
+    api_key_env: "GEMINI_API_KEY"
+    max_retries: 3
+    retry_wait_seconds: 10
+    num_processes: 5
+    segment_length: 30  # seconds
+    overlap: 2  # seconds
+    # For llamacpp backend:
+    # backend_type: "llamacpp"
+    # endpoint: "http://127.0.0.1:8004"
+    # model: "Qwen3VL-2B-Instruct-Q4_K_M"
+
+  # Image Backend
+  image:
+    backend_type: "gemini"  # Options: "gemini", "llamacpp"
+    model: "gemini-2.5-flash"
+    api_key_env: "GEMINI_API_KEY"
+    max_retries: 3
+    retry_wait_seconds: 10
+    # For llamacpp backend:
+    # backend_type: "llamacpp"
+    # endpoint: "http://127.0.0.1:8004"
+    # model: "Qwen3VL-2B-Instruct-Q4_K_M"
+
+  # Audio Backend
+  audio:
+    backend_type: "gemini"  # Options: "gemini", "llamacpp"
+    model: "gemini-2.5-flash"
+    api_key_env: "GEMINI_API_KEY"
+    max_retries: 3
+    retry_wait_seconds: 10
+    num_processes: 5
+    segment_length: 30
+    overlap: 2
+
+# Text file handling (bypass captioning)
+# Text files are directly converted to metadata format without VLM processing
+text:
+  extensions: [".txt", ".xml", ".md", ".json"]  # Files that bypass captioning
+  encoding: "utf-8"
+
+# Intermediate I/O (for run_offline.py)
+save_intermediate:
+  enabled: false  # Set to true to save metadata JSON
+  metadata_dir: "./data/metadata"
+
+# Storage paths (used when save_intermediate.enabled = true)
+storage:
+  metadata_dir: "./data/metadata"
+  temp_dir: null  # Uses RESEARCH_CORE_STORAGE_DIR env var if null
+
+# ============================================================================
+# Service Ports (for llamacpp backend):
+# ============================================================================
+#   8004 - VLM Backend (Qwen3VL-2B) - for ingestion (vision tasks)
+#   8005 - Embedding (Qwen3-Embedding)
+#   8006 - Rerank (Qwen3-Reranker)
+#   8007 - LLM Generator (text generation for RAG)
+#
+# Note: VLM (8004) is for vision tasks (video/image/PDF understanding)
+#       LLM (8007) is for text generation (RAG answers)
+# ============================================================================

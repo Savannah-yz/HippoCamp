@@ -1,0 +1,21 @@
+[
+    {
+        "id": "q001",
+        "question": "What was Intel's net revenue for Q2 2025?",
+        "answer": "$12,859 million",
+        "file_path": ["Intel/0000050863-25-000109.pdf"],
+        "evidence": [
+            {
+                "file_path": "Intel/0000050863-25-000109.pdf",
+                "page": 5,
+                "content": "Net revenue: $12,859 million for three months ended Jun 28, 2025"
+            }
+        ]
+    },
+    {
+        "id": "q002",
+        "question": "What is Apple's total revenue for the most recent fiscal year?",
+        "answer": "Apple's total revenue was $391.0 billion for fiscal year 2024.",
+        "file_path": ["aapl/apple-10k-2024.pdf"]
+    }
+]

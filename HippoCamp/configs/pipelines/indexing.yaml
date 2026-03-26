@@ -1,0 +1,223 @@
+# Indexing Pipeline Configuration
+# ================================
+# Behavior settings for: Chunk -> Embed -> Store
+# Service providers are configured in configs/services.yaml
+#
+# Usage:
+#   python scripts/run_offline.py /path/to/file --experiment exp_001
+
+# Experiment Isolation
+# --------------------
+# Each experiment creates a separate collection for clean ablation studies
+experiment:
+  id: "hippo"
+  # Examples:
+  #   "exp_001" -> collection: research_rag_exp_001
+  #   "baseline" -> collection: research_rag_baseline
+
+# Chunking Settings
+# -----------------
+chunking:
+  mode: "default"
+  modes:
+    default:
+      method: "semantic"
+      max_chars: 1000
+      min_chars: 200
+      overlap: 0
+      token_limit: 1000
+      section_split_all: true
+    hippo:
+      method: "semantic"
+      max_chars: 1000
+      min_chars: 200
+      overlap: 0
+      token_limit: 1000
+      section_split_file_types: ["pdf", "docx", "doc", "md", "txt"]
+      by_type:
+        pdf:
+          method: "semantic"
+          max_chars: 1000
+          min_chars: 200
+          overlap: 0
+          token_limit: 1000
+        docx:
+          method: "semantic"
+          max_chars: 1000
+          min_chars: 200
+          overlap: 0
+          token_limit: 1000
+        doc:
+          method: "semantic"
+          max_chars: 1000
+          min_chars: 200
+          overlap: 0
+          token_limit: 1000
+        md:
+          method: "semantic"
+          max_chars: 1000
+          min_chars: 200
+          overlap: 0
+          token_limit: 1000
+        txt:
+          method: "semantic"
+          max_chars: 1000
+          min_chars: 200
+          overlap: 0
+          token_limit: 1000
+        pptx:
+          method: "segment"
+          min_chars: 1
+          overlap: 0
+        ppt:
+          method: "segment"
+          min_chars: 1
+          overlap: 0
+        png:
+          method: "file"
+          overlap: 0
+        jpg:
+          method: "file"
+          overlap: 0
+        jpeg:
+          method: "file"
+          overlap: 0
+        gif:
+          method: "file"
+          overlap: 0
+        webm:
+          method: "file"
+          overlap: 0
+        webp:
+          method: "file"
+          overlap: 0
+        tiff:
+          method: "file"
+          overlap: 0
+        tif:
+          method: "file"
+          overlap: 0
+        csv:
+          method: "file"
+          overlap: 0
+        xlsx:
+          method: "file"
+          overlap: 0
+        json:
+          method: "file"
+          overlap: 0
+        jsonl:
+          method: "file"
+          overlap: 0
+        eml:
+          method: "file"
+          overlap: 0
+        sqlite:
+          method: "file"
+          overlap: 0
+        log:
+          method: "file"
+          overlap: 0
+        ipynb:
+          method: "file"
+          overlap: 0
+        py:
+          method: "file"
+          overlap: 0
+        sh:
+          method: "file"
+          overlap: 0
+        bin:
+          method: "file"
+          overlap: 0
+        pkl:
+          method: "file"
+          overlap: 0
+        npy:
+          method: "file"
+          overlap: 0
+        pt:
+          method: "file"
+          overlap: 0
+        pth:
+          method: "file"
+          overlap: 0
+        ics:
+          method: "ics"
+          min_chars: 1
+          overlap: 0
+        mp3:
+          method: "segment"
+          min_chars: 1
+          overlap: 0
+        mp4:
+          method: "segment"
+          min_chars: 1
+          overlap: 0
+        mkv:
+          method: "segment"
+          min_chars: 1
+          overlap: 0
+        mov:
+          method: "segment"
+          min_chars: 1
+          overlap: 0
+        avi:
+          method: "segment"
+          min_chars: 1
+          overlap: 0
+        wav:
+          method: "segment"
+          min_chars: 1
+          overlap: 0
+        flac:
+          method: "segment"
+          min_chars: 1
+          overlap: 0
+        aac:
+          method: "segment"
+          min_chars: 1
+          overlap: 0
+        ogg:
+          method: "segment"
+          min_chars: 1
+          overlap: 0
+        m4a:
+          method: "segment"
+          min_chars: 1
+          overlap: 0
+        wma:
+          method: "segment"
+          min_chars: 1
+          overlap: 0
+
+# Retrieval Settings (for deduplication check)
+# ---------------------------------------------
+retrieval:
+  top_k: 100
+
+# Intermediate I/O
+# ----------------
+# When disabled, data flows in memory for efficiency
+# When enabled, saves intermediate results for debugging
+save_intermediate:
+  enabled: false
+  metadata_dir: "./data/metadata"
+  chunks_dir: "./data/chunks"
+  embeddings_dir: "./data/embeddings"
+
+# =============================================================================
+# Ablation Study Examples
+# =============================================================================
+#
+# Test different chunk sizes:
+#   experiment:
+#     id: "chunk_256"
+#   chunking:
+#     chunk_size: 256
+#
+# Test different overlap:
+#   experiment:
+#     id: "overlap_50"
+#   chunking:
+#     overlap: 50

@@ -1,0 +1,13 @@
+extension,modality,total_file_size
+mp3,Audio,1.20 GB
+csv,Documents,435 B
+docx,Documents,4.15 MB
+eml,Documents,106.65 KB
+ics,Documents,26.77 KB
+pdf,Documents,960.17 MB
+xlsx,Documents,11.98 KB
+png,Images,51.52 MB
+json,Text,6.95 KB
+md,Text,56.39 KB
+txt,Text,15.35 KB
+mp4,Video,42.05 MB

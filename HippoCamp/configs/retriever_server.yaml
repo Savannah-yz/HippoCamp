@@ -1,0 +1,41 @@
+# =============================================================================
+# Retriever Server Configuration
+# =============================================================================
+#
+# Self-contained config for the retriever server (scripts/retriever_server.py).
+# This is INDEPENDENT from providers.yaml which configures the full query pipeline.
+#
+# Infrastructure services (Qdrant, embedding, reranker) come from services.yaml.
+# This file only configures the retrieval algorithm and server parameters.
+#
+# Usage:
+#   python scripts/retriever_server.py -e my_experiment
+#   python scripts/retriever_server.py -e my_experiment --retrieval self_rag
+#   python scripts/retriever_server.py -e my_experiment --config configs/retriever_server.yaml
+#
+# =============================================================================
+
+# Retrieval algorithm configuration
+# Available types:
+#   - vector_search : Simple vector similarity search with optional reranking
+#   - standard_rag  : Standard RAG pipeline (Retrieve -> Rerank -> Return)
+#   - self_rag      : Self-RAG with reflection (Retrieve -> Grade -> Filter -> Iterate)
+#   - graded_rag    : Graded RAG (Route -> Retrieve -> Grade -> Rewrite -> Return)
+#
+retrieval:
+  type: "standard_rag"
+  params:
+    top_k: 100
+    use_reranker: true
+    rerank_top_k: 5
+    relevance_threshold: 0.5
+    max_iterations: 2
+    max_rewrite_attempts: 2
+    enable_routing: true
+    enable_grading: true
+
+# Server defaults (can be overridden via CLI)
+server:
+  host: "0.0.0.0"
+  port: 18000
+  default_top_k: 5

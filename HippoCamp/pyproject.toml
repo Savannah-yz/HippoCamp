@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hippocamp-eval"
+version = "1.0.0"
+description = "HippoCamp: A Multi-Modal Personal Knowledge Benchmark - Evaluation Framework"
+requires-python = ">=3.10"
+dependencies = [
+    # Core
+    "pydantic>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "requests>=2.31.0",
+    "tenacity>=8.0.0",
+    "tqdm>=4.0.0",
+    "tiktoken>=0.7.0",
+    "numpy>=1.24.0",
+    "pyyaml>=6.0",
+
+    # Chunking
+    "chonkie[all]",
+
+    # Embedding Providers
+    "cohere>=5.14.2",
+    "FlagEmbedding>=1.2.0",
+
+    # Vector Store
+    "qdrant-client>=1.9.0",
+
+    # Async
+    "aiosqlite>=0.20.0",
+    "httpx[socks]>=0.24.0",
+    "socksio>=1.0.0",
+
+    # Server
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
+
+    # LLM Providers
+    "google-genai>=1.10.0",
+    "openai>=1.0.0",
+
+    # Evaluation Metrics
+    "rouge-score>=0.1.2",
+    "nltk>=3.8.0",
+    "sentence-transformers>=2.2.0",
+
+    # PDF Processing
+    "pypdf>=3.0.0",
+    "pypdfium2>=4.30.0",
+    "Pillow>=10.0.0",
+]
+
+[project.optional-dependencies]
+local = [
+    # For running local models (Search-R1, Qwen ReAct)
+    "transformers>=4.40.0",
+    "torch>=2.0.0",
+    "accelerate>=0.25.0",
+]
+all = [
+    "hippocamp-eval[local]",
+    "pymilvus[milvus_lite]>=2.4.0",
+    "motor>=3.7.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 88

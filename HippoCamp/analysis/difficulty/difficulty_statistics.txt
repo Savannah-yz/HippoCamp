@@ -1,0 +1,93 @@
+DIFFICULTY ANALYSIS STATISTICS - ENHANCED
+================================================================================
+
+DOMAIN MAPPING:
+  Victoria: Finance Domain
+  Adam: Law Domain
+  Bei: College Domain
+  All: HippoCamp Benchmark
+
+SCORING SYSTEM:
+8 dimensions, each scored 1-10 points (raw range: 8-80)
+Normalized to 0-100 scale
+
+DIMENSIONS:
+1. file_number
+2. modality_count
+3. file_type_count
+4. question_tokens
+5. evidence_count
+6. rationale_steps
+7. answer_tokens
+8. time_span_days
+
+================================================================================
+
+FINANCE DOMAIN:
+  Overall (223 questions):
+    Mean difficulty: 16.75
+    Median difficulty: 13.89
+    Std deviation: 9.25
+    Range: 2.7777777777777777-55.55555555555556
+
+  Factual Retention (203 questions):
+    Mean difficulty: 14.83
+    Median difficulty: 13.89
+    Range: 2.7777777777777777-34.72222222222222
+
+  Profiling (20 questions):
+    Mean difficulty: 36.25
+    Median difficulty: 34.72
+    Range: 23.61111111111111-55.55555555555556
+
+LAW DOMAIN:
+  Overall (123 questions):
+    Mean difficulty: 25.71
+    Median difficulty: 23.61
+    Std deviation: 8.07
+    Range: 11.11111111111111-50.0
+
+  Factual Retention (103 questions):
+    Mean difficulty: 23.92
+    Median difficulty: 23.61
+    Range: 11.11111111111111-41.66666666666667
+
+  Profiling (20 questions):
+    Mean difficulty: 34.93
+    Median difficulty: 35.42
+    Range: 16.666666666666664-50.0
+
+COLLEGE DOMAIN:
+  Overall (235 questions):
+    Mean difficulty: 15.14
+    Median difficulty: 12.50
+    Std deviation: 8.81
+    Range: 1.3888888888888888-44.44444444444444
+
+  Factual Retention (215 questions):
+    Mean difficulty: 14.32
+    Median difficulty: 12.50
+    Range: 1.3888888888888888-41.66666666666667
+
+  Profiling (20 questions):
+    Mean difficulty: 23.89
+    Median difficulty: 22.92
+    Range: 6.944444444444445-44.44444444444444
+
+HIPPOCAMP BENCHMARK:
+  Overall (581 questions):
+    Mean difficulty: 18.00
+    Median difficulty: 15.28
+    Std deviation: 9.72
+    Range: 1.3888888888888888-55.55555555555556
+
+  Factual Retention (521 questions):
+    Mean difficulty: 16.42
+    Median difficulty: 13.89
+    Range: 1.3888888888888888-41.66666666666667
+
+  Profiling (60 questions):
+    Mean difficulty: 31.69
+    Median difficulty: 34.03
+    Range: 6.944444444444445-55.55555555555556
+

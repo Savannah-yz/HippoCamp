@@ -1,0 +1,194 @@
+# =============================================================================
+# Provider Configuration for Research Core
+# =============================================================================
+#
+# This file configures the retrieval and generation providers for the RAG pipeline.
+# The provider system allows easy switching between different methods for ablation studies.
+#
+# Usage:
+#   python scripts/run_query.py -q "What is ML?" -e exp_001
+#   python scripts/run_query.py -q "What is ML?" -e exp_001 --retrieval self_rag --generator gemini
+#   python scripts/run_query.py -q "What is ML?" -e exp_001 --generator search_r1 --mode hotpotqa
+#   python scripts/run_query.py -q "What is ML?" -e exp_001 --generator qwen_react --mode custom
+#
+# =============================================================================
+
+# =============================================================================
+# Retrieval Provider Configuration
+# =============================================================================
+#
+# NOTE: This retrieval config is ONLY used when the active generator is "gemini"
+# (standard RAG flow: retrieve in-process -> pass chunks to generator).
+#
+# For end-to-end generators (gemini_react, qwen_react, search_r1), this config
+# is IGNORED — retrieval is auto-set to "none" and the generator calls the
+# retriever server (scripts/retriever_server.py) via HTTP instead.
+# The retriever server has its OWN config: configs/retriever_server.yaml.
+#
+# Architecture:
+#   gemini (standard RAG):
+#     run_query.py -> RetrievalProvider (in-process, THIS config) -> GeneratorProvider
+#
+#   gemini_react / qwen_react / search_r1 (end-to-end):
+#     run_query.py -> GeneratorProvider -> HTTP POST search_url -> retriever_server.py
+#                                                                  (retriever_server.yaml)
+#
+# Available types:
+#   - vector_search : Simple vector similarity search with optional reranking
+#   - standard_rag  : Standard RAG pipeline (Retrieve -> Rerank -> Return)
+#   - self_rag      : Self-RAG with reflection (Retrieve -> Grade -> Filter -> Iterate)
+#   - graded_rag    : Graded RAG ((Route) -> Retrieve -> (Grade) -> (Rewrite) -> Return)
+#   - hybrid_rag   : Hybrid RAG (Dense + BM25 via SQLite FTS5 -> RRF Fusion -> Rerank)
+#   - none          : No retrieval (auto-set for end-to-end generators)
+#
+
+retrieval:
+  # type: "standard_rag"
+  # params:
+  #   top_k: 100
+  #   use_reranker: true
+  #   rerank_top_k: 5
+  #   relevance_threshold: 0.5
+  #   max_iterations: 2
+  #   max_rewrite_attempts: 2
+  #   enable_routing: true
+  #   enable_grading: true
+
+# To use hybrid_rag (Dense + BM25 via SQLite FTS5):
+retrieval:
+  type: "hybrid_rag"
+  params:
+    top_k: 30                 # Candidates after RRF fusion
+    top_k_dense: 100          # Dense search candidates from Qdrant
+    top_k_bm25: 100           # BM25 candidates from SQLite FTS5
+    rrf_k: 60                 # RRF smoothing constant
+    use_reranker: true
+    rerank_top_k: 10
+    sqlite_db_path: "data/research_rag_financebench_page_synvo_local.sqlite"
+    store_prerank: true          # Store pre-rerank candidates for diagnostic analysis
+    # Metadata-based file filtering: "none" | "rule" | "rule_norerank" | "llm" | "llm_norerank"
+    metadata_filter: "llm"
+
+# =============================================================================
+# Parent-Child Chunking Configuration
+# =============================================================================
+# After reranking, expand individual chunks to full-page context.
+# Groups chunks by (file_id, page_number), fetches all sibling chunks
+# from the same page, and merges them into page-level context.
+#
+parent_child:
+  enabled: false
+  max_pages: 10              # Maximum number of pages to pass to generator
+
+# =============================================================================
+# Generator Provider Configuration
+# =============================================================================
+#
+# Change `active_generator` to switch which generator is used.
+# All generator configs are always visible below — no comment/uncomment needed.
+#
+# CLI flag `--generator <name>` overrides this setting.
+#
+# For end-to-end generators (search_r1, qwen_react, gemini_react):
+#   - search_url : Points to retriever_server.py (must be running separately)
+#   - topk       : Number of results the generator REQUESTS from the server
+#                   (the server may apply its own reranking/filtering per
+#                    retriever_server.yaml before returning)
+#
+active_generator: "qwen_react"
+
+generators:
+  # ── Gemini (standard RAG generator, works with all retrieval methods) ────
+  gemini:
+    type: "gemini"
+    params:
+      model: "gemini-2.5-pro"
+      max_tokens: 8192  # gemini-2.5-flash uses thinking tokens within this budget
+      temperature: 0.7
+      api_key_env: "GEMINI_API_KEY"
+      system_prompt: |
+        You are a financial analyst assistant. Your task is to answer questions about companies using ONLY the provided context from SEC filings (10-K, 10-Q, 8-K reports).
+
+        CRITICAL INSTRUCTIONS:
+        1. Before claiming any information is missing, carefully re-read ALL context passages. Financial data often appears under different line item names than expected (e.g., "Purchases of property, plant and equipment" = "Capital Expenditures", "Cost of products sold" = "COGS").
+        2. For numerical/ratio questions: identify the required data points, extract exact numbers from the context, and show your calculation step by step.
+        3. For qualitative questions: synthesize information across all provided passages. Do not stop at the first relevant passage.
+        4. Only refuse to answer if you have thoroughly checked every passage and the required information is genuinely absent. A partial answer is better than a refusal.
+        5. When citing numbers, include the source passage number [1], [2], etc.
+      rag_prompt_template: |
+        You are given context passages from SEC filings. Use them to answer the question.
+
+        Context:
+        {context}
+
+        Question: {query}
+
+        Think step by step. Extract relevant data points, perform any necessary calculations, and provide a clear answer:
+
+  # ── Search-R1 (end-to-end, retrieval auto-set to 'none') ────────────────
+  search_r1:
+    type: "search_r1"
+    params:
+      mode: "custom"                # "hotpotqa" or "custom"
+      model_path: "PeterJinGo/SearchR1-nq_hotpotqa_train-qwen2.5-7b-em-ppo"
+      search_url: "http://127.0.0.1:18000/retrieve"
+      max_turns: 5
+      topk: 3
+      temperature: 0.7
+      max_new_tokens: 16384
+
+  # ── Qwen ReAct (end-to-end, retrieval auto-set to 'none') ───────────────
+  qwen_react:
+    type: "qwen_react"
+    params:
+      mode: "custom"                # "hotpotqa" or "custom"
+      model_path: "Qwen/Qwen3-30B-A3B-Thinking-2507"
+      search_url: "http://127.0.0.1:18000/retrieve"
+      max_turns: 10
+      topk: 3
+      temperature: 0.7
+      max_new_tokens: 16384
+      initial_search_original: true
+
+  # ── Gemini ReAct (end-to-end, retrieval auto-set to 'none') ─────────────
+  gemini_react:
+    type: "gemini_react"
+    params:
+      mode: "custom"                # "hotpotqa" or "custom"
+      model: "gemini-2.5-pro"
+      search_url: "http://127.0.0.1:18000/retrieve"
+      max_turns: 10
+      topk: 20
+      temperature: 0.7
+      max_tokens: 16384
+      api_key_env: "GEMINI_API_KEY"
+      initial_search_original: true
+
+# =============================================================================
+# Quick Reference (CLI flags override this file)
+# =============================================================================
+#
+# Standard RAG + Gemini (default):
+#   python scripts/run_query.py -q "What is ML?" -e exp_001
+#
+# Search-R1 (custom prompt):
+#   python scripts/run_query.py -q "What is ML?" -e exp_001 --generator search_r1
+#
+# Search-R1 (hotpotqa reproduction):
+#   python scripts/run_query.py -q "What is ML?" -e exp_001 --generator search_r1 --mode hotpotqa
+#
+# Qwen ReAct (custom prompt):
+#   python scripts/run_query.py -q "What is ML?" -e exp_001 --generator qwen_react
+#
+# Qwen ReAct (hotpotqa):
+#   python scripts/run_query.py -q "What is ML?" -e exp_001 --generator qwen_react --mode hotpotqa
+#
+# Gemini ReAct (Gemini controls the search loop):
+#   python scripts/run_query.py -q "What is ML?" -e exp_001 --generator gemini_react
+#
+# Gemini ReAct (hotpotqa mode):
+#   python scripts/run_query.py -q "What is ML?" -e exp_001 --generator gemini_react --mode hotpotqa
+#
+# Batch with evaluation:
+#   python scripts/run_query.py --batch benchmark.json -e exp_001 --generator gemini_react --mode custom --evaluate
+#

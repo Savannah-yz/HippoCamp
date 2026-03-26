@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use HippoCamp, please cite the paper below."
+title: "HippoCamp: Benchmarking Contextual Agents on Personal Computers"
+type: software
+authors:
+  - family-names: Yang
+    given-names: Zhe
+  - family-names: Tian
+    given-names: Shulin
+  - family-names: Hu
+    given-names: Kairui
+  - family-names: Liu
+    given-names: Shuai
+  - family-names: Nguyen
+    given-names: Hoang-Nhat
+  - family-names: Zhang
+    given-names: Yichi
+  - family-names: Guo
+    given-names: Zujin
+  - family-names: Yu
+    given-names: Mengying
+  - family-names: Zhang
+    given-names: Zinan
+  - family-names: Yang
+    given-names: Jingkang
+  - family-names: Loy
+    given-names: Chen Change
+  - family-names: Liu
+    given-names: Ziwei
+date-released: 2026-03-26
+repository-code: "https://savannah-yz.github.io/project_page/HippoCamp/"
+url: "https://savannah-yz.github.io/project_page/HippoCamp/"
