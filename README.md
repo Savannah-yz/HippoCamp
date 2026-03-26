@@ -11,7 +11,7 @@ We present HippoCamp, a benchmark designed to evaluate agents on multimodal file
 [![Docker Images](https://img.shields.io/badge/Docker-Images-2496ed)](XXXXXXX)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab)](#install)
 
-![HippoCamp teaser](assets/figs/0_overview.png)
+![HippoCamp teaser](assets/figs/teaser_overview.png)
 
 ## News
 
@@ -37,7 +37,7 @@ The released benchmark covers:
 
 The released annotation JSONs follow the hierarchy below.
 
-![Annotation hierarchy](assets/figs/1_hierarchy.png)
+![Annotation hierarchy](assets/figs/annotation_hierarchy.png)
 
 ## What Is Released
 
@@ -485,31 +485,31 @@ return_metadata 'Guide to attending court.pdf'
 
 #### Evidence breadth
 
-![Evidence breadth](assets/figs/15_Evidence.png)
+![Evidence breadth](assets/figs/evidence_breadth.png)
 
 `15_Evidence` measures evidence breadth: the number of ground-truth supporting files per query. In the released code, this is read from `file_number` when present and otherwise falls back to `len(file_path)`. It directly captures retrieval breadth and shows the benchmark's multi-file heavy tail.
 
 #### Modality breadth
 
-![Modality breadth](assets/figs/16_Modality.png)
+![Modality breadth](assets/figs/modality_breadth.png)
 
 `16_Modality` measures modality breadth: the number of distinct values in `file_modality` for a query. This is the benchmark's direct proxy for cross-modal grounding burden.
 
 #### Reasoning depth
 
-![Reasoning depth](assets/figs/17_Reasoning_steps.png)
+![Reasoning depth](assets/figs/reasoning_depth.png)
 
 `17_Reasoning_steps` measures reasoning depth: the maximum `step_id` in `rationale`, or the rationale length when explicit IDs are absent. It captures the depth of annotated multi-step integration required by a query.
 
 #### Difficulty distribution
 
-![Difficulty distribution](assets/figs/18_Difficulty.png)
+![Difficulty distribution](assets/figs/difficulty_distribution.png)
 
 `18_Difficulty` aggregates eight factors into a scalar difficulty score: evidence files, modalities, file types, evidence items, reasoning steps, question length, answer length, and time span. The code applies weighted normalization, interaction terms, a hard-case bonus, and a sigmoid mapping to place the final score on a 0-100 scale.
 
 #### Difficulty vs performance
 
-![Difficulty vs performance](assets/figs/19_difficulty_vs_performance.png)
+![Difficulty vs performance](assets/figs/difficulty_vs_performance.png)
 
 `19_difficulty_vs_performance` bins question difficulty in 5-point intervals and aligns each bin with the per-question `judge.llm_as_a_judge_score` across nine evaluated methods. It shows how performance degrades as retrieval, perception, and reasoning constraints co-occur.
 
