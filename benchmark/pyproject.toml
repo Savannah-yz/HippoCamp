@@ -40,6 +40,7 @@ dependencies = [
     # LLM Providers
     "google-genai>=1.10.0",
     "openai>=1.0.0",
+    "transformers>=4.41.0,<5",
 
     # Evaluation Metrics
     "rouge-score>=0.1.2",
@@ -55,7 +56,6 @@ dependencies = [
 [project.optional-dependencies]
 local = [
     # For running local models (Search-R1, Qwen ReAct)
-    "transformers>=4.40.0",
     "torch>=2.0.0",
     "accelerate>=0.25.0",
 ]

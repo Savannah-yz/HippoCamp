@@ -911,9 +911,9 @@ def main():
         raise SystemExit("google-generativeai not installed")
 
     load_dotenv()
-    api_key = os.environ.get("GOOGLE_API_KEY", "")
+    api_key = os.environ.get("GEMINI_API_KEY", "") or os.environ.get("GOOGLE_API_KEY", "")
     if not api_key:
-        raise SystemExit("GOOGLE_API_KEY not found in .env or environment")
+        raise SystemExit("GEMINI_API_KEY not found in .env or environment (GOOGLE_API_KEY is accepted as a legacy alias)")
     genai.configure(api_key=api_key)
     model_name = args.model
     env_model = os.environ.get("GEMINI_MODEL", "")

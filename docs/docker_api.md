@@ -53,12 +53,12 @@ The public release recommends these host-port mappings:
 
 | Container | Image | Host port | Container port |
 | --- | --- | --- | --- |
-| `hippocamp-bei-subset` | `hippocamp/bei_subset:latest` | `8081` | `8080` |
-| `hippocamp-adam-subset` | `hippocamp/adam_subset:latest` | `8082` | `8080` |
-| `hippocamp-victoria-subset` | `hippocamp/victoria_subset:latest` | `8083` | `8080` |
-| `hippocamp-bei-fullset` | `hippocamp/bei_fullset:latest` | `8084` | `8080` |
-| `hippocamp-adam-fullset` | `hippocamp/adam_fullset:latest` | `8085` | `8080` |
-| `hippocamp-victoria-fullset` | `hippocamp/victoria_fullset:latest` | `8086` | `8080` |
+| `hippocamp-bei-subset` | `hippocamp/bei_subset:latest` | `18081` | `8080` |
+| `hippocamp-adam-subset` | `hippocamp/adam_subset:latest` | `18082` | `8080` |
+| `hippocamp-victoria-subset` | `hippocamp/victoria_subset:latest` | `18083` | `8080` |
+| `hippocamp-bei-fullset` | `hippocamp/bei_fullset:latest` | `18084` | `8080` |
+| `hippocamp-adam-fullset` | `hippocamp/adam_fullset:latest` | `18085` | `8080` |
+| `hippocamp-victoria-fullset` | `hippocamp/victoria_fullset:latest` | `18086` | `8080` |
 
 Image metadata also exposes `5000/tcp`, but the released runtime files inspected from the image do not route the documented WebUI or the released agent wrappers through `5000`. For public reproduction:
 
@@ -73,7 +73,7 @@ Container port `8080` serves:
 - the `/api/bash_notify` and `/api/terminal_notify` endpoints used for terminal-to-WebUI synchronization
 - the WebSocket channel used by the Flask-SocketIO frontend
 
-The wrappers auto-detect the mapped host port through `docker port <container> 8080/tcp`. You can override it manually with `--webui-base http://localhost:8082` or the corresponding port for another container.
+The wrappers auto-detect the mapped host port through `docker port <container> 8080/tcp`. You can override it manually with `--webui-base http://localhost:18082` or the corresponding port for another container.
 
 To manage the WebUI on a running container:
 
@@ -83,6 +83,48 @@ docker exec -it hippocamp-adam-subset bash -lc 'webui_status'
 docker exec -it hippocamp-adam-subset bash -lc 'webui_stop'
 ```
 
+Starting the container with `docker run -it -p <host>:8080 ...` only gives you the interactive shell. The browser WebUI does not appear on `http://localhost:<host>` until `webui` has been started inside the container.
+
+If Docker reports that the container name is already in use, reuse the existing named container instead of running `docker run` again:
+
+```bash
+docker start -ai hippocamp-adam-fullset
+```
+
+To replace it with a fresh container using the same name:
+
+```bash
+docker rm -f hippocamp-adam-fullset
+docker run -it -p 18085:8080 --name hippocamp-adam-fullset hippocamp/adam_fullset:latest
+```
+
+Concrete example for Adam fullset:
+
+1. Start the container:
+
+```bash
+docker run -it -p 18085:8080 --name hippocamp-adam-fullset hippocamp/adam_fullset:latest
+```
+
+   If the container already exists, use `docker start -ai hippocamp-adam-fullset` instead.
+
+2. Start the WebUI at the in-container prompt:
+
+```bash
+webui
+```
+
+3. Keep that terminal open, then open <http://localhost:18085> in your browser.
+
+Browser URLs after `webui` starts:
+
+- `hippocamp-bei-subset` -> <http://localhost:18081>
+- `hippocamp-adam-subset` -> <http://localhost:18082>
+- `hippocamp-victoria-subset` -> <http://localhost:18083>
+- `hippocamp-bei-fullset` -> <http://localhost:18084>
+- `hippocamp-adam-fullset` -> <http://localhost:18085>
+- `hippocamp-victoria-fullset` -> <http://localhost:18086>
+
 You can also let the released agent wrappers start it automatically:
 
 ```bash
@@ -91,13 +133,27 @@ python3 agent/chatgpt.py --container hippocamp-adam-subset --question "..." --en
 python3 agent/vllm.py --container hippocamp-adam-subset --question "..." --ensure-webui
 ```
 
-Useful host-side HTTP examples after mapping `8082:8080`:
+If `http://localhost:<host-port>` still does not open after `webui` starts:
+
+1. Verify the container is running and still owns the published port:
 
 ```bash
-curl http://localhost:8082/api/files/list
-curl http://localhost:8082/api/history
-curl http://localhost:8082/api/feature_flags
-curl "http://localhost:8082/api/return_img/Guide%20to%20attending%20court.pdf?page=2"
+docker ps --format '{{.Names}}\t{{.Ports}}\t{{.Status}}' | grep hippocamp-adam-fullset
+```
+
+2. Verify the WebUI success banner appeared inside the container after running `webui`.
+
+3. Remember that `docker start -ai <container>` reuses the container's original port bindings. If the container was first created without `-p 18085:8080`, remove it and recreate it with the published port.
+
+4. If the container has the expected mapping and the WebUI is listening on `0.0.0.0:8080` inside the container, but the host still cannot open the page, restart Docker Desktop and recreate the container. That failure mode is in Docker host-port forwarding, not the HippoCamp runtime.
+
+Useful host-side HTTP examples after mapping `18082:8080`:
+
+```bash
+curl http://localhost:18082/api/files/list
+curl http://localhost:18082/api/history
+curl http://localhost:18082/api/feature_flags
+curl "http://localhost:18082/api/return_img/Guide%20to%20attending%20court.pdf?page=2"
 ```
 
 Use URL encoding for spaces and other reserved characters in file paths.
@@ -279,7 +335,7 @@ webui
 
 The documented success payload points to:
 
-- `url`: `http://localhost:8080` inside the container contract; after port mapping, open the corresponding host URL such as `http://localhost:8082`
+- `url`: `http://localhost:8080` inside the container contract; after port mapping, open the corresponding host URL such as `http://localhost:18082`
 - `log`: `/hippocamp/output/.webui/webui.log`
 
 ### `webui_status`
@@ -331,12 +387,12 @@ The WebUI also uses Flask-SocketIO for live updates, including file-operation br
 Examples:
 
 ```bash
-curl http://localhost:8082/api/files
-curl http://localhost:8082/api/files/list?pattern=*.pdf
-curl http://localhost:8082/api/feature_flags
-curl "http://localhost:8082/api/return_txt/Guide%20to%20attending%20court.pdf"
-curl "http://localhost:8082/api/return_img/Guide%20to%20attending%20court.pdf?page=2"
-curl "http://localhost:8082/api/return_metadata/Guide%20to%20attending%20court.pdf"
+curl http://localhost:18082/api/files
+curl http://localhost:18082/api/files/list?pattern=*.pdf
+curl http://localhost:18082/api/feature_flags
+curl "http://localhost:18082/api/return_txt/Guide%20to%20attending%20court.pdf"
+curl "http://localhost:18082/api/return_img/Guide%20to%20attending%20court.pdf?page=2"
+curl "http://localhost:18082/api/return_metadata/Guide%20to%20attending%20court.pdf"
 ```
 
 Notes:

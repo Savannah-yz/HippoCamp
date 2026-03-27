@@ -16,7 +16,7 @@ pip install -r requirements.txt
 For the benchmark subsystem:
 
 ```bash
-pip install -e ./benchmark
+pip install -e ./benchmark --no-deps
 ```
 
 If you see matplotlib or fontconfig cache warnings, set:
@@ -182,19 +182,19 @@ docker load -i hippocamp_victoria_fullset.tar
 ### 2. Start a container
 
 ```bash
-docker run -it -p 8082:8080 --name hippocamp-adam-subset hippocamp/adam_subset:latest
+docker run -it -p 18082:8080 --name hippocamp-adam-subset hippocamp/adam_subset:latest
 ```
 
-The container command layer is documented in [`docs/docker_api.md`](docker_api.md). The mapped host port `8082` serves the WebUI and the mirrored HTTP API. The prompt-based agent wrappers still execute the benchmark commands inside the container via `docker exec`, but the same file operations are also visible through the WebUI backend.
+The container command layer is documented in [`docs/docker_api.md`](docker_api.md). The mapped host port `18082` serves the WebUI and the mirrored HTTP API. The prompt-based agent wrappers still execute the benchmark commands inside the container via `docker exec`, but the same file operations are also visible through the WebUI backend.
 
 The image metadata also exposes `5000/tcp`. The public workflow does not require mapping it, because the released WebUI and agent wrappers use `8080`. If you want full parity with the declared image ports for debugging, you can add an extra mapping such as `-p 58082:5000`.
 
 Quick WebUI/API smoke checks after the container is running:
 
 ```bash
-curl http://localhost:8082/api/files/list
-curl http://localhost:8082/api/history
-curl "http://localhost:8082/api/return_metadata/Guide%20to%20attending%20court.pdf"
+curl http://localhost:18082/api/files/list
+curl http://localhost:18082/api/history
+curl "http://localhost:18082/api/return_metadata/Guide%20to%20attending%20court.pdf"
 ```
 
 ### 3. Run a terminal agent

@@ -170,8 +170,10 @@ This public release uses a single `requirements.txt`. The local-model dependenci
 Optional editable install for the benchmark subsystem:
 
 ```bash
-pip install -e ./benchmark
+pip install -e ./benchmark --no-deps
 ```
+
+`requirements.txt` already installs the merged dependency set used by the public release, so `--no-deps` avoids unnecessary resolver backtracking during the editable install.
 
 ### 2. Configure runtime caches
 
@@ -231,12 +233,12 @@ The Docker archives are intentionally not hosted on GitHub. Replace the placehol
 
 | Archive | Image | Container name | Host port | Download |
 | --- | --- | --- | --- | --- |
-| `hippocamp_bei_subset.tar` | `hippocamp/bei_subset:latest` | `hippocamp-bei-subset` | `8081` | `XXXXXXX` |
-| `hippocamp_adam_subset.tar` | `hippocamp/adam_subset:latest` | `hippocamp-adam-subset` | `8082` | `XXXXXXX` |
-| `hippocamp_victoria_subset.tar` | `hippocamp/victoria_subset:latest` | `hippocamp-victoria-subset` | `8083` | `XXXXXXX` |
-| `hippocamp_bei_fullset.tar` | `hippocamp/bei_fullset:latest` | `hippocamp-bei-fullset` | `8084` | `XXXXXXX` |
-| `hippocamp_adam_fullset.tar` | `hippocamp/adam_fullset:latest` | `hippocamp-adam-fullset` | `8085` | `XXXXXXX` |
-| `hippocamp_victoria_fullset.tar` | `hippocamp/victoria_fullset:latest` | `hippocamp-victoria-fullset` | `8086` | `XXXXXXX` |
+| `hippocamp_bei_subset.tar` | `hippocamp/bei_subset:latest` | `hippocamp-bei-subset` | `18081` | `XXXXXXX` |
+| `hippocamp_adam_subset.tar` | `hippocamp/adam_subset:latest` | `hippocamp-adam-subset` | `18082` | `XXXXXXX` |
+| `hippocamp_victoria_subset.tar` | `hippocamp/victoria_subset:latest` | `hippocamp-victoria-subset` | `18083` | `XXXXXXX` |
+| `hippocamp_bei_fullset.tar` | `hippocamp/bei_fullset:latest` | `hippocamp-bei-fullset` | `18084` | `XXXXXXX` |
+| `hippocamp_adam_fullset.tar` | `hippocamp/adam_fullset:latest` | `hippocamp-adam-fullset` | `18085` | `XXXXXXX` |
+| `hippocamp_victoria_fullset.tar` | `hippocamp/victoria_fullset:latest` | `hippocamp-victoria-fullset` | `18086` | `XXXXXXX` |
 
 Load the images:
 
@@ -252,13 +254,46 @@ docker load -i hippocamp_victoria_fullset.tar
 Start the containers:
 
 ```bash
-docker run -it -p 8081:8080 --name hippocamp-bei-subset hippocamp/bei_subset:latest
-docker run -it -p 8082:8080 --name hippocamp-adam-subset hippocamp/adam_subset:latest
-docker run -it -p 8083:8080 --name hippocamp-victoria-subset hippocamp/victoria_subset:latest
-docker run -it -p 8084:8080 --name hippocamp-bei-fullset hippocamp/bei_fullset:latest
-docker run -it -p 8085:8080 --name hippocamp-adam-fullset hippocamp/adam_fullset:latest
-docker run -it -p 8086:8080 --name hippocamp-victoria-fullset hippocamp/victoria_fullset:latest
+docker run -it -p 18081:8080 --name hippocamp-bei-subset hippocamp/bei_subset:latest
+docker run -it -p 18082:8080 --name hippocamp-adam-subset hippocamp/adam_subset:latest
+docker run -it -p 18083:8080 --name hippocamp-victoria-subset hippocamp/victoria_subset:latest
+docker run -it -p 18084:8080 --name hippocamp-bei-fullset hippocamp/bei_fullset:latest
+docker run -it -p 18085:8080 --name hippocamp-adam-fullset hippocamp/adam_fullset:latest
+docker run -it -p 18086:8080 --name hippocamp-victoria-fullset hippocamp/victoria_fullset:latest
 ```
+
+These `docker run -it ...` commands start the interactive benchmark shell, not the browser WebUI. If you open `http://localhost:<host-port>` before starting `webui` inside the container, the page will not load.
+
+If you already created a named container earlier, running the same `docker run ... --name <container>` command again will fail with a Docker name-conflict error. In that case, reuse the existing container instead of creating a new one:
+
+```bash
+docker start -ai hippocamp-adam-fullset
+```
+
+If you really want a fresh container with the same name, remove the old one first:
+
+```bash
+docker rm -f hippocamp-adam-fullset
+docker run -it -p 18085:8080 --name hippocamp-adam-fullset hippocamp/adam_fullset:latest
+```
+
+For example, to open the Adam fullset WebUI:
+
+1. In Terminal A, start the container:
+
+```bash
+docker run -it -p 18085:8080 --name hippocamp-adam-fullset hippocamp/adam_fullset:latest
+```
+
+   If the container already exists, use `docker start -ai hippocamp-adam-fullset` instead.
+
+2. At the in-container prompt, start the WebUI:
+
+```bash
+webui
+```
+
+3. Keep that terminal open, then open `http://localhost:18085` in your browser.
 
 The image metadata exposes both `8080/tcp` and `5000/tcp`. In the released runtime that ships inside the image, the public WebUI and documented HTTP routes are served on `HIPPOCAMP_PORT` (default `8080`), and the released agent wrappers also auto-detect and use this `8080` mapping. The file interface is therefore available in two forms:
 
@@ -275,14 +310,48 @@ docker exec -it hippocamp-adam-subset bash -lc 'webui_status'
 docker exec -it hippocamp-adam-subset bash -lc 'webui_stop'
 ```
 
-After `webui` starts, open `http://localhost:8082` for `hippocamp-adam-subset` or the corresponding host port for the other containers. The released `agent/*.py` wrappers can also start it automatically with `--ensure-webui` and auto-detect the mapped URL from `docker port <container> 8080/tcp`.
+After `webui` starts, open the matching host URL in your browser:
+
+- `hippocamp-bei-subset` -> <http://localhost:18081>
+- `hippocamp-adam-subset` -> <http://localhost:18082>
+- `hippocamp-victoria-subset` -> <http://localhost:18083>
+- `hippocamp-bei-fullset` -> <http://localhost:18084>
+- `hippocamp-adam-fullset` -> <http://localhost:18085>
+- `hippocamp-victoria-fullset` -> <http://localhost:18086>
+
+The released `agent/*.py` wrappers can also start the WebUI automatically with `--ensure-webui` and auto-detect the mapped URL from `docker port <container> 8080/tcp`.
+
+If the browser still cannot open `http://localhost:<host-port>`, check the following before debugging the benchmark code itself:
+
+1. Confirm the container is still running and the port mapping exists:
+
+```bash
+docker ps --format '{{.Names}}\t{{.Ports}}\t{{.Status}}' | grep hippocamp-adam-fullset
+```
+
+Expected output should include `0.0.0.0:18085->8080/tcp` for `hippocamp-adam-fullset`.
+
+2. Confirm you already started the WebUI inside the container and saw the success banner:
+
+```bash
+webui
+```
+
+3. If the container was originally created without `-p 18085:8080`, `docker start -ai` will not add that mapping retroactively. Remove and recreate it:
+
+```bash
+docker rm -f hippocamp-adam-fullset
+docker run -it -p 18085:8080 --name hippocamp-adam-fullset hippocamp/adam_fullset:latest
+```
+
+4. If the mapping is present and `webui` is already running, but `http://localhost:18085` or `http://127.0.0.1:18085` still does not respond, restart Docker Desktop and recreate the container. At that point the issue is in Docker host-port forwarding rather than the HippoCamp container itself.
 
 Useful WebUI HTTP routes on the mapped host port include:
 
 ```bash
-curl http://localhost:8082/api/files/list
-curl http://localhost:8082/api/history
-curl "http://localhost:8082/api/return_img/Guide%20to%20attending%20court.pdf?page=2"
+curl http://localhost:18082/api/files/list
+curl http://localhost:18082/api/history
+curl "http://localhost:18082/api/return_img/Guide%20to%20attending%20court.pdf?page=2"
 ```
 
 For a full route reference, including `return_txt`, `return_ori`, `return_metadata`, feature flags, history sync, and the WebSocket-backed WebUI behavior, see [`docs/docker_api.md`](docs/docker_api.md).
@@ -407,7 +476,63 @@ python3 agent/chatgpt_batch.py \
 
 The batch runners accept JSON, JSONL, or TXT question files, but the released benchmark JSONs are the canonical input because they already provide the fields used downstream by the evaluators. During batch execution, the runners preserve fields such as `question`, `answer`, `file_path`, `evidence`, `rationale`, `agent_cap`, `QA_type`, and `profiling_type` when present, and they derive `agent_file_list` from tool calls like `return_txt`, `return_img`, `return_ori`, and `return_metadata`.
 
-With `--ensure-webui`, the wrappers also start the in-container Flask-SocketIO WebUI and mirror command traces to `http://localhost:<mapped-8080-port>/api/log_command`. This lets you watch the agent browse files, inspect previews, and accumulate evidence in the browser while the terminal loop is running. The planned video demo will show this WebUI-driven trajectory.
+#### Prompt Configs For Docker-Based Agent Evaluation
+
+The terminal-agent wrappers expose `--prompt-config` so you can evaluate under different auxiliary-interface assumptions without changing the Docker image itself. The config definitions live in [`agent/prompt_modules/config.py`](agent/prompt_modules/config.py).
+
+This is useful when you want to keep testing close to a model's native architecture while still controlling whether the agent is allowed to use:
+
+- `return_ori`: the original source file
+- `return_txt`: the parsed text JSON backed by `/hippocamp/gold` (`HippoCamp_Gold`)
+- `return_img`: rendered image or page-view assistance
+
+The released wrappers map `--prompt-config` to the Docker-side `return_txt` and `return_img` feature flags as follows:
+
+| Config | `return_ori` | `return_txt` | `return_img` | Recommended use |
+| --- | --- | --- | --- | --- |
+| `config0` | on | on | on | Default setting. Use the full HippoCamp auxiliary interface. |
+| `config1` | on | off | off | Source-only setting. Use this when you want the strongest no-helper setup: no `HippoCamp_Gold` text JSON and no rendered-image assistance. |
+| `config2` | on | off | on | Image-enabled, text-disabled. Use this when the model can consume multimodal image inputs but you do not want help from `HippoCamp_Gold`. |
+| `config3` | on | on | off | Text-enabled, image-disabled. Use this when the model can use parsed text JSON but cannot accept image-style multimodal inputs. |
+
+Notes:
+
+- If you want to disable image multimodal assistance completely, choose `config3`.
+- If you want a source-only evaluation with only `return_ori`, choose `config1`.
+- `config0` remains the max-assistance setting for agents that can use both parsed text and rendered visual previews.
+
+Examples:
+
+```bash
+# Default: full auxiliary help
+python3 agent/chatgpt_batch.py \
+  --container hippocamp-adam-subset \
+  --questions-file /path/to/Adam_Subset.json \
+  --prompt-config config0 \
+  --ensure-webui \
+  --log-dir log/chatgpt_batch \
+  --result-dir result/chatgpt_batch
+
+# Source-only: only return_ori, no HippoCamp_Gold, no return_img
+python3 agent/chatgpt_batch.py \
+  --container hippocamp-adam-subset \
+  --questions-file /path/to/Adam_Subset.json \
+  --prompt-config config1 \
+  --ensure-webui \
+  --log-dir log/chatgpt_batch_source_only \
+  --result-dir result/chatgpt_batch_source_only
+
+# No image multimodal input, but keep HippoCamp_Gold text JSON
+python3 agent/chatgpt_batch.py \
+  --container hippocamp-adam-subset \
+  --questions-file /path/to/Adam_Subset.json \
+  --prompt-config config3 \
+  --ensure-webui \
+  --log-dir log/chatgpt_batch_text_only \
+  --result-dir result/chatgpt_batch_text_only
+```
+
+With `--ensure-webui`, the wrappers also start the in-container Flask-SocketIO WebUI and mirror command traces to `http://localhost:<mapped-host-port>/api/log_command`. This lets you watch the agent browse files, inspect previews, and accumulate evidence in the browser while the terminal loop is running. The planned video demo will show this WebUI-driven trajectory.
 
 Top-level evaluation:
 
