@@ -7,7 +7,7 @@ HippoCamp is a benchmark for evaluating contextual agents on realistic personal-
 [![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Dataset-f59e0b)](https://huggingface.co/datasets/MMMem-org/HippoCamp)
 [![Paper](https://img.shields.io/badge/Paper-PDF-b91c1c)](docs/paper/HippoCamp.pdf)
 [![Leaderboard](https://img.shields.io/badge/Leaderboard-Project%20Page-16a34a)](https://savannah-yz.github.io/project_page/HippoCamp/)
-[![Video](https://img.shields.io/badge/Video-coming%20soon-6b7280)](#video)
+[![Video](https://img.shields.io/badge/Video-Watch%20Now-ff0000)](https://youtu.be/fY0NFkVL38A)
 [![Docker](https://img.shields.io/badge/Docker-coming%20soon-2496ed)](#docker-images)
 
 ![HippoCamp teaser](assets/figs/teaser_overview.png)
@@ -16,7 +16,7 @@ HippoCamp is a benchmark for evaluating contextual agents on realistic personal-
 
 - HippoCamp was submitted to ECCV on February 15, 2026.
 - Public release dates for the repository, project page, dataset, and visualization assets will be finalized later.
-- The demo video link, Docker archive download links, and final citation are not finalized yet.
+- Docker archive download links and the final citation are not finalized yet.
 
 ## Overview
 
@@ -47,7 +47,7 @@ The released annotation JSONs follow the hierarchy below.
 | Project page | Available | <https://savannah-yz.github.io/project_page/HippoCamp/> | benchmark overview, examples, leaderboard |
 | Data visualization | Available | <https://savannah-yz.github.io/data_visualization/HippoCamp/> | interactive environment visualization |
 | Docker archives | Pending | to be added at release | six prebuilt benchmark images |
-| Demo video | Pending | to be added at release | end-to-end WebUI and agent demo |
+| Demo video | Available | <https://youtu.be/fY0NFkVL38A> | end-to-end WebUI and agent demo |
 | Citation | Pending | to be finalized after release | final BibTeX and `CITATION.cff` |
 
 ## Data Layout
@@ -462,7 +462,11 @@ If you evaluate a new prompt-based agent or baseline, email your result package 
 
 ## Video
 
-The demo video link will be added after the release assets are finalized.
+Watch the visualization and end-to-end demo here:
+
+- <https://youtu.be/fY0NFkVL38A>
+
+[![Watch the HippoCamp visualization demo](https://img.youtube.com/vi/fY0NFkVL38A/hqdefault.jpg)](https://youtu.be/fY0NFkVL38A)
 
 ## Citation
 
