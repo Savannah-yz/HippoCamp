@@ -5,7 +5,7 @@ HippoCamp is a benchmark for evaluating contextual agents on realistic personal-
 [![Project Page](https://img.shields.io/badge/Project-Page-1f6feb)](https://savannah-yz.github.io/project_page/HippoCamp/)
 [![Data Visualization](https://img.shields.io/badge/Data-Visualization-0a7ea4)](https://savannah-yz.github.io/data_visualization/HippoCamp/)
 [![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Dataset-f59e0b)](https://huggingface.co/datasets/MMMem-org/HippoCamp)
-[![Paper](https://img.shields.io/badge/Paper-PDF-b91c1c)](docs/paper/HippoCamp.pdf)
+[![Paper](https://img.shields.io/badge/Paper-Pending-9ca3af)](#paper)
 [![Leaderboard](https://img.shields.io/badge/Leaderboard-Project%20Page-16a34a)](https://savannah-yz.github.io/project_page/HippoCamp/)
 [![Video](https://img.shields.io/badge/Video-Watch%20Now-ff0000)](https://youtu.be/fY0NFkVL38A)
 [![Docker](https://img.shields.io/badge/Docker-coming%20soon-2496ed)](#docker-images)
@@ -16,7 +16,7 @@ HippoCamp is a benchmark for evaluating contextual agents on realistic personal-
 
 - HippoCamp was submitted to ECCV on February 15, 2026.
 - Public release dates for the repository, project page, dataset, and visualization assets will be finalized later.
-- Docker archive download links and the final citation are not finalized yet.
+- The public paper PDF, Docker archive download links, and the final citation are not finalized yet.
 
 ## Overview
 
@@ -46,6 +46,7 @@ The released annotation JSONs follow the hierarchy below.
 | Hugging Face dataset | Available | <https://huggingface.co/datasets/MMMem-org/HippoCamp> | raw environments, official annotation JSONs, `HippoCamp_Gold`, metadata spreadsheets |
 | Project page | Available | <https://savannah-yz.github.io/project_page/HippoCamp/> | benchmark overview, examples, leaderboard |
 | Data visualization | Available | <https://savannah-yz.github.io/data_visualization/HippoCamp/> | interactive environment visualization |
+| Paper PDF | Pending | to be added at release | public paper PDF link |
 | Docker archives | Pending | to be added at release | six prebuilt benchmark images |
 | Demo video | Available | <https://youtu.be/fY0NFkVL38A> | end-to-end WebUI and agent demo |
 | Citation | Pending | to be finalized after release | final BibTeX and `CITATION.cff` |
@@ -462,11 +463,7 @@ If you evaluate a new prompt-based agent or baseline, email your result package 
 
 ## Video
 
-Watch the visualization and end-to-end demo here:
-
-- <https://youtu.be/fY0NFkVL38A>
-
-[![Watch the HippoCamp visualization demo](https://img.youtube.com/vi/fY0NFkVL38A/hqdefault.jpg)](https://youtu.be/fY0NFkVL38A)
+[![HippoCamp demo video cover](https://img.youtube.com/vi/fY0NFkVL38A/hqdefault.jpg)](https://youtu.be/fY0NFkVL38A)
 
 ## Citation
 
