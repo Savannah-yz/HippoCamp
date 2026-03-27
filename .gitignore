@@ -24,10 +24,10 @@ benchmark/analysis/data/*.xlsx
 benchmark/analysis/outputs/
 benchmark/analysis/local_results/
 
+# Build artifacts
+*.egg-info/
+
 # Local-only materials kept outside the public release surface
-arxiv/
-README_zh.md
-benchmark/README_CN.md
 benchmark/.env.example
 data/
 !benchmark/analysis/data/

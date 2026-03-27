@@ -7,8 +7,8 @@ HippoCamp is a benchmark for evaluating contextual agents on realistic personal-
 [![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Dataset-f59e0b)](https://huggingface.co/datasets/MMMem-org/HippoCamp)
 [![Paper](https://img.shields.io/badge/Paper-PDF-b91c1c)](docs/paper/HippoCamp.pdf)
 [![Leaderboard](https://img.shields.io/badge/Leaderboard-Project%20Page-16a34a)](https://savannah-yz.github.io/project_page/HippoCamp/)
-[![Video Link](https://img.shields.io/badge/Video-Link-coming_soon-6b7280)](#video)
-[![Docker Images](https://img.shields.io/badge/Docker-Images-coming_soon-2496ed)](#docker-images)
+[![Video](https://img.shields.io/badge/Video-coming%20soon-6b7280)](#video)
+[![Docker](https://img.shields.io/badge/Docker-coming%20soon-2496ed)](#docker-images)
 
 ![HippoCamp teaser](assets/figs/teaser_overview.png)
 
@@ -134,14 +134,30 @@ On that page, open the `Files and versions` tab to browse and download the relea
 │   └── tables/
 ├── docs/
 │   ├── docker_api.md
+│   ├── evaluation.md
 │   ├── reproduction.md
 │   └── paper/HippoCamp.pdf
 ├── benchmark/
 │   ├── README.md
+│   ├── pyproject.toml
 │   ├── sample_questions.json
 │   ├── configs/
+│   │   ├── evaluation.yaml
+│   │   ├── providers.yaml
+│   │   ├── retriever_server.yaml
+│   │   ├── services.yaml.example
+│   │   └── pipelines/
 │   ├── scripts/
+│   │   ├── run_offline.py
+│   │   ├── run_query.py
+│   │   ├── run_evaluation.py
+│   │   └── retriever_server.py
 │   ├── src/
+│   │   ├── providers/
+│   │   │   ├── generator/
+│   │   │   └── retrieval/
+│   │   ├── rag/
+│   │   └── shared/
 │   ├── analysis/
 │   │   ├── README.md
 │   │   └── data/README.md
@@ -152,7 +168,13 @@ On that page, open the `Files and versions` tab to browse and download the relea
     ├── chatgpt.py
     ├── claude.py
     ├── vllm.py
-    └── *_batch.py
+    ├── gemini_batch.py
+    ├── chatgpt_batch.py
+    ├── claude_batch.py
+    ├── vllm_batch.py
+    └── prompt_modules/
+        ├── config.py
+        └── prompt_body.py
 ```
 
 ## Install
@@ -275,14 +297,18 @@ HippoCamp exposes two complementary evaluation paths:
 - a **RAG / search-agent** pipeline under `benchmark/`
 - a **terminal-agent** pipeline under `agent/`
 
-Longer command sequences live in [`docs/reproduction.md`](docs/reproduction.md).
+For complete step-by-step commands covering all methods and configurations, see [`docs/reproduction.md`](docs/reproduction.md).
 
 ### A. RAG / Search-Agent Pipeline
 
 Run these commands from `benchmark/`.
 
 1. Copy the parsed-text release into `benchmark/HippoCamp_Gold/`.
-2. Copy `.env` from the repository root and configure `configs/services.yaml` if needed.
+2. Copy and configure the service config and environment file:
+   ```bash
+   cp configs/services.yaml.example configs/services.yaml
+   cp ../.env.example ../.env
+   ```
 3. Start Qdrant if you use the default local vector-store setup.
 4. Build the local index.
 5. Run a baseline.
@@ -299,12 +325,6 @@ python3 scripts/run_query.py --batch sample_questions.json -e hippo \
 ```
 
 Use `sample_questions.json` only for smoke tests. For full evaluation, replace it with one of the official Hugging Face annotation JSON files.
-
-Important outputs:
-
-- `--output-dir` writes one per-query JSON file named `<query_id>_<timestamp>.json`
-- `--output-dir` also writes `summary_<timestamp>.json`
-- `--evaluate` together with `--output-dir` writes `evaluation_<timestamp>.json`
 
 ### B. Terminal-Agent Pipeline
 
@@ -333,21 +353,9 @@ python3 agent/chatgpt_batch.py \
 
 The canonical batch input is an official annotation JSON from Hugging Face, not `HippoCamp_Gold`.
 
-Important outputs:
-
-- `--log-json` stores the single-question session trace
-- `--log-dir` stores stdout and stderr logs
-- `--result-dir` stores one per-question result JSON, `summary.jsonl`, and `aggregate.json`
-
 #### Prompt Configs For Docker-Based Agent Evaluation
 
 The terminal-agent wrappers expose `--prompt-config` so you can control whether the agent may use:
-
-- `return_ori`: original source files
-- `return_txt`: parsed-text JSON backed by `HippoCamp_Gold`
-- `return_img`: rendered visual assistance
-
-The released wrappers map `--prompt-config` to the Docker-side feature flags as follows:
 
 | Config | `return_ori` | `return_txt` | `return_img` | Recommended use |
 | --- | --- | --- | --- | --- |
@@ -358,155 +366,7 @@ The released wrappers map `--prompt-config` to the Docker-side feature flags as 
 
 ### C. Prompt-Based Agent Output Evaluation
 
-For terminal-agent outputs and other custom agent results, use `evaluate.py`.
-
-See the `Evaluation` section below for:
-
-- the exact input schema
-- the supported metrics
-- example commands
-- the difference between `evaluate.py` and `benchmark/scripts/run_evaluation.py`
-
-## Evaluation
-
-HippoCamp currently exposes two distinct evaluation entrypoints. They are meant for different output formats.
-
-### 1. RAG / Search-Agent Evaluation
-
-Use these when your outputs come from `benchmark/scripts/run_query.py`.
-
-Code paths:
-
-- `benchmark/scripts/run_query.py --evaluate`
-- `benchmark/scripts/run_evaluation.py`
-
-`run_query.py --evaluate` is the integrated path during generation. `run_evaluation.py` is the standalone evaluator for saved `summary_*.json` files.
-
-RAG evaluation metrics currently include:
-
-- answer-quality metrics: `rouge`, `bleu`, `exact_match`, `covered_exact_match`, `semantic_similarity`, `bert_score`
-- chunk-retrieval metrics: `retrieval_precision`, `retrieval_recall`, `retrieval_f1`
-- optional LLM judge: `llm_judge`
-- file-level retrieval metrics: precision / recall / F1 computed from `file_list` and `retrieved_file_list`
-
-Examples:
-
-```bash
-# Evaluate while running the query pipeline
-python3 scripts/run_query.py --batch sample_questions.json -e hippo \
-  --retrieval standard_rag --generator gemini --evaluate
-
-# Re-evaluate an existing result directory
-python3 benchmark/scripts/run_evaluation.py /path/to/output_dir
-
-# Inspect available metrics
-python3 benchmark/scripts/run_evaluation.py --list-metrics
-
-# Run specific metrics explicitly
-python3 benchmark/scripts/run_evaluation.py /path/to/output_dir \
-  --metrics rouge bleu semantic_similarity llm_judge
-```
-
-`benchmark/scripts/run_evaluation.py` accepts either:
-
-- a directory containing `summary_*.json`
-- or a specific `summary_*.json` file
-
-If you request `llm_judge`, configure Azure judge credentials through `.env` or environment variables such as `AZURE_OPENAI_ENDPOINT` and `AZURE_OPENAI_API_KEY`.
-
-Typical `run_query.py` result record:
-
-```json
-{
-  "timestamp": "20260327_120000",
-  "provider": "gemini",
-  "bench": "hippo",
-  "query_id": "1",
-  "query": "What does the guide say about court dress code?",
-  "ground_truth": "Dress neatly and appropriately for court.",
-  "answer": "The guide says court attendees should dress neatly and appropriately.",
-  "retrieved_chunks": [
-    {
-      "rank": 1,
-      "content": "You should dress neatly and appropriately for court...",
-      "score": 0.91,
-      "id": "chunk_001",
-      "metadata": {
-        "file_info": {
-          "file_path": "Guide to attending court.pdf",
-          "file_type": "pdf",
-          "file_name": "Guide to attending court.pdf"
-        }
-      }
-    }
-  ],
-  "file_list": [
-    "Guide to attending court.pdf"
-  ],
-  "retrieved_file_list": [
-    "Guide to attending court.pdf"
-  ],
-  "execution_time_ms": 4231
-}
-```
-
-Typical `benchmark/scripts/run_evaluation.py` output record:
-
-```json
-{
-  "query_id": "1",
-  "query": "What does the guide say about court dress code?",
-  "answer": "The guide says court attendees should dress neatly and appropriately.",
-  "ground_truth": "Dress neatly and appropriately for court.",
-  "judge": {
-    "llm_as_a_judge_score": 4,
-    "pred": "yes",
-    "score_0_5": 4,
-    "score_normalized": 0.8,
-    "api_status": "success"
-  },
-  "simple_metrics": {
-    "rouge": {
-      "score": 0.71
-    },
-    "semantic_similarity": {
-      "score": 0.89
-    }
-  },
-  "file_list_metrics": {
-    "f1_score": 1.0,
-    "recall": 1.0,
-    "precision": 1.0
-  },
-  "timestamp": "20260327_120530"
-}
-```
-
-### 2. Prompt-Based Agent Evaluation
-
-Use [`evaluate.py`](evaluate.py) for terminal-agent outputs and other custom agent outputs that follow the simplified result schema.
-
-This evaluator currently computes:
-
-- LLM-as-a-judge answer quality
-- file-list precision / recall / F1 from `ground_file_list` versus `agent_file_list`
-
-Expected input fields per record:
-
-- `query_id`
-- `query` or `question`
-- `answer`
-- `ground_truth`
-- `ground_file_list`
-- `agent_file_list`
-- `time_ms`
-
-Typical input sources:
-
-- `result/<batch_name>/aggregate.json` produced by `agent/*_batch.py`
-- any custom JSON or JSONL file that follows the schema above
-
-Example:
+For terminal-agent outputs and other custom agent results, use `evaluate.py`:
 
 ```bash
 python3 evaluate.py \
@@ -515,103 +375,16 @@ python3 evaluate.py \
   --aggregate-metrics-json result/chatgpt_batch/judge_summary.json
 ```
 
-You can also pass judge credentials explicitly:
+## Evaluation
 
-```bash
-python3 evaluate.py \
-  --input-dataset result/chatgpt_batch/aggregate.json \
-  --judge-api-url "$AZURE_OPENAI_ENDPOINT" \
-  --judge-api-key "$AZURE_OPENAI_API_KEY" \
-  --print-results
-```
+HippoCamp exposes two distinct evaluation entrypoints for different output formats.
 
-If no judge API credentials are configured, `evaluate.py` still runs, but the LLM-judge portion falls back to zero-score outputs.
+| Entrypoint | Intended for | Metrics |
+| --- | --- | --- |
+| `benchmark/scripts/run_evaluation.py` | RAG / search-agent outputs from `run_query.py` | ROUGE, BLEU, exact match, semantic similarity, BERTScore, retrieval P/R/F1, LLM judge |
+| `evaluate.py` | Terminal-agent and custom agent outputs | LLM-as-a-judge answer quality, file-list P/R/F1 |
 
-Typical terminal-agent batch record from `agent/*_batch.py`:
-
-```json
-{
-  "agent": "ChatGPT",
-  "query_id": "1",
-  "question": "What does the guide say about court dress code?",
-  "answer": "The guide says court attendees should dress neatly and appropriately.",
-  "steps": {
-    "step_1": {
-      "command": "return_txt 'Guide to attending court.pdf'"
-    }
-  },
-  "ground_file_list": [
-    "Guide to attending court.pdf"
-  ],
-  "agent_file_list": [
-    "Guide to attending court.pdf"
-  ],
-  "ground_truth": "Dress neatly and appropriately for court.",
-  "evidence": [
-    "Guide to attending court.pdf"
-  ],
-  "agent_cap": "search+reasoning",
-  "QA_type": "factual_retention",
-  "time_ms": 6842
-}
-```
-
-Typical per-query result from `evaluate.py`:
-
-```json
-{
-  "query_id": "1",
-  "query": "What does the guide say about court dress code?",
-  "answer": "The guide says court attendees should dress neatly and appropriately.",
-  "ground_truth": "Dress neatly and appropriately for court.",
-  "time_ms": 6842,
-  "judge": {
-    "llm_as_a_judge_score": 4,
-    "pred": "yes",
-    "score_0_5": 4,
-    "score_normalized": 0.8,
-    "api_status": "success"
-  },
-  "ground_file_list": [
-    "Guide to attending court.pdf"
-  ],
-  "agent_file_list": [
-    "Guide to attending court.pdf"
-  ],
-  "file_list_metrics": {
-    "f1_score": 1.0,
-    "recall": 1.0,
-    "precision": 1.0
-  }
-}
-```
-
-Typical aggregate summary from `evaluate.py`:
-
-```json
-{
-  "total_queries": 100,
-  "metrics": {
-    "llm_judge": {
-      "mean": 3.42,
-      "min": 0,
-      "max": 5,
-      "count": 100,
-      "yes_count": 68,
-      "no_count": 32,
-      "pass_rate": 0.68,
-      "avg_latency_ms": 5120.4
-    }
-  },
-  "file_list_metrics": {
-    "total_evaluated": 100,
-    "average_f1_score": 0.57,
-    "average_recall": 0.61,
-    "average_precision": 0.55,
-    "file_hit_rate": 0.61
-  }
-}
-```
+For detailed input/output schemas, JSON examples, and command options, see [`docs/evaluation.md`](docs/evaluation.md).
 
 ## Develop Your Prompt-Based Agent
 
