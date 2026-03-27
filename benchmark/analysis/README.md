@@ -1,26 +1,28 @@
 # Benchmark Analysis
 
-`benchmark/analysis/` contains the released analysis scripts used to compute difficulty statistics, timestamp distributions, file-size summaries, and difficulty-vs-performance plots.
+`benchmark/analysis/` contains the released scripts used to compute difficulty statistics, timestamp distributions, file-size summaries, and difficulty-vs-performance plots.
 
-The public GitHub release does not ship the required analysis inputs. Before running any script here, download the following fullset files from Hugging Face into [`data/`](./data/):
+## Required Inputs
 
-- `Adam/Fullset/Adam.json`
-- `Bei/Fullset/Bei.json`
-- `Victoria/Fullset/Victoria.json`
-- `Adam/Fullset/Adam_files.xlsx`
-- `Bei/Fullset/Bei_files.xlsx`
-- `Victoria/Fullset/Victoria_files.xlsx`
+Before running any script here, place the following fullset files under [`data/`](./data/):
 
-See [`data/README.md`](./data/README.md) for exact copy commands.
+- `Adam.json`
+- `Bei.json`
+- `Victoria.json`
+- `Adam_files.xlsx`
+- `Bei_files.xlsx`
+- `Victoria_files.xlsx`
+
+Exact copy commands are documented in [`data/README.md`](./data/README.md).
 
 ## Scripts
 
 - `difficulty/generate_difficulty_reports.py`: computes the released scalar difficulty score and writes figures to `benchmark/analysis/outputs/figs/`
 - `file_time/file_combined_boxplot.py`: plots timestamp distributions from the metadata spreadsheets
 - `difficulty_vs_performance/difficulty_performance_plot.py`: aligns per-question difficulty with your local evaluation outputs
-- `file_size/file_size_stats.py`: computes per-profile file-size breakdowns from raw source files downloaded from Hugging Face
+- `file_size/file_size_stats.py`: computes per-profile file-size breakdowns from raw source folders downloaded from Hugging Face
 
-## Typical commands
+## Typical Commands
 
 Difficulty figures:
 
@@ -49,4 +51,6 @@ python3 benchmark/analysis/file_size/file_size_stats.py \
   --output-dir benchmark/analysis/outputs/file_size
 ```
 
-All generated figures are written under `benchmark/analysis/outputs/`.
+## Outputs
+
+Generated figures and reports are written under `benchmark/analysis/outputs/`.

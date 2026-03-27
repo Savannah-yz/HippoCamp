@@ -21,7 +21,6 @@ benchmark/HippoCamp_Gold/*
 !benchmark/HippoCamp_Gold/README.md
 benchmark/analysis/data/*.json
 benchmark/analysis/data/*.xlsx
-!benchmark/analysis/data/README.md
 benchmark/analysis/outputs/
 benchmark/analysis/local_results/
 
@@ -31,3 +30,5 @@ README_zh.md
 benchmark/README_CN.md
 benchmark/.env.example
 data/
+!benchmark/analysis/data/
+!benchmark/analysis/data/README.md

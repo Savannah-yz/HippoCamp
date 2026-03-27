@@ -1,6 +1,8 @@
 # Docker Interface Reference
 
-The public GitHub release distributes prebuilt Docker images rather than the image-build pipeline. This document therefore focuses on the runtime surface of the released images: the in-container CLI commands, the WebUI and HTTP API, the shell behavior, and the ports that matter for reproduction.
+The public GitHub release distributes prebuilt Docker images rather than the image-build pipeline. This document focuses on the runtime surface of the released images: the in-container CLI commands, the WebUI and HTTP API, the shell behavior, and the ports that matter for reproduction.
+
+Use this document for container-level behavior. For end-to-end evaluation commands and file-placement guidance, see [`Reproduction Notes`](./reproduction.md).
 
 HippoCamp exposes two user-facing access layers:
 

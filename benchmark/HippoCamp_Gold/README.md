@@ -1,12 +1,14 @@
 # HippoCamp_Gold
 
-`HippoCamp_Gold/` is intentionally not shipped as part of the public GitHub release.
+`HippoCamp_Gold/` stores the parsed-text release used by the public RAG pipeline and by Docker-side `return_txt` workflows.
 
-Download the parsed text release from:
+## Expected Layout
+
+Download the parsed-text release from:
 
 - <https://huggingface.co/datasets/MMMem-org/HippoCamp>
 
-Place the extracted profile folders under this directory so the released scripts keep their public paths unchanged:
+Place the extracted profile folders under this directory:
 
 ```text
 benchmark/HippoCamp_Gold/
@@ -15,7 +17,9 @@ benchmark/HippoCamp_Gold/
 └── Victoria/
 ```
 
-`HippoCamp_Gold` stores the parsed text version of the benchmark files as JSON. Each file follows the high-level schema:
+## File Schema
+
+Each parsed file follows the high-level schema:
 
 ```json
 {
@@ -27,8 +31,14 @@ benchmark/HippoCamp_Gold/
 
 At a high level:
 
-- `file_info` records file identity, user, modality, timestamps, location metadata, and QA linkage.
-- `summary` stores an optional file-level summary string.
-- `segments` store modality-specific parsed content, such as page-level document text or timestamped audio transcription.
+- `file_info` records file identity, user, modality, timestamps, location metadata, and QA linkage
+- `summary` stores an optional file-level summary
+- `segments` store modality-specific parsed content such as page-level document text or timestamped audio transcription
 
-The benchmark README and reproduction notes document the commands that consume this path.
+## Used By
+
+- `benchmark/scripts/run_offline.py`
+- `benchmark/scripts/run_query.py`
+- Docker-side `return_txt`
+
+See [`../README.md`](../README.md) and [`../../docs/reproduction.md`](../../docs/reproduction.md) for the workflows that consume this directory.

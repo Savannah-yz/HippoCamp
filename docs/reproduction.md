@@ -1,8 +1,8 @@
 # Reproduction Notes
 
-This document collects the longer command sequences that support the public release README.
+This document collects the step-by-step commands for the public release. Use the root [`README.md`](../README.md) for the release map and high-level workflow selection. Use the [`Docker interface reference`](./docker_api.md) for the container interface itself.
 
-## Shared setup
+## Before You Start
 
 Create a virtual environment from the repository root:
 
@@ -13,7 +13,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-For the benchmark subsystem:
+Optional editable install for the benchmark subsystem:
 
 ```bash
 pip install -e ./benchmark --no-deps
@@ -26,46 +26,40 @@ export XDG_CACHE_HOME=$PWD/.cache
 export MPLCONFIGDIR=$PWD/.cache/matplotlib
 ```
 
-## Data release map
+Create `.env` once:
 
-The authoritative data release lives on Hugging Face:
+```bash
+cp .env.example .env
+```
+
+## External Inputs
+
+The public workflows rely on a few external assets:
+
+| Asset | Source | Local path | Used by |
+| --- | --- | --- | --- |
+| Parsed-text release (`HippoCamp_Gold`) | Hugging Face | `benchmark/HippoCamp_Gold/` | RAG indexing and `return_txt`-based workflows |
+| Official annotation JSON files | Hugging Face | any local path | RAG batch runs and terminal-agent batch runs |
+| Fullset annotation JSON files and spreadsheets | Hugging Face | `benchmark/analysis/data/` | analysis scripts |
+| Docker archives | release download links | any local path before `docker load` | terminal-agent pipeline |
+
+Browse the Hugging Face release from the `Files and versions` tab:
 
 - <https://huggingface.co/datasets/MMMem-org/HippoCamp>
 
-Use the released data pieces as follows:
+`benchmark/sample_questions.json` is only a lightweight smoke-test input. It is not the full benchmark release.
 
-- The six source directories under `HippoCamp/Adam/{Subset,Fullset}/...`, `HippoCamp/Bei/{Subset,Fullset}/...`, and `HippoCamp/Victoria/{Subset,Fullset}/...` store the raw personal-computing-environment files.
-- The six annotation JSON files such as `Adam.json`, `Adam_Subset.json`, `Victoria.json`, and `Victoria_Subset.json` store the released QA pairs and explicit annotations.
-- `HippoCamp_Gold` stores parsed text JSON files with the schema `{file_info, summary, segments}`.
-- The `*_files.xlsx` spreadsheets store creation time, modification time, and location-oriented metadata. The Hugging Face release also includes `HippoCamp/update_metadata_from_xlsx.py`.
-
-For local use in this repository:
-
-- Place the parsed text release under `benchmark/HippoCamp_Gold/`.
-- Download the fullset analysis inputs into `benchmark/analysis/data/` if you want to reproduce the analysis figures.
-- Use one of the official annotation JSONs directly as `--questions-file` for terminal-agent batch evaluation.
-
-Concrete analysis-input placement:
-
-```bash
-mkdir -p benchmark/analysis/data
-
-cp /path/to/HippoCamp/Adam/Fullset/Adam.json benchmark/analysis/data/Adam.json
-cp /path/to/HippoCamp/Bei/Fullset/Bei.json benchmark/analysis/data/Bei.json
-cp /path/to/HippoCamp/Victoria/Fullset/Victoria.json benchmark/analysis/data/Victoria.json
-
-cp /path/to/HippoCamp/Adam/Fullset/Adam_files.xlsx benchmark/analysis/data/Adam_files.xlsx
-cp /path/to/HippoCamp/Bei/Fullset/Bei_files.xlsx benchmark/analysis/data/Bei_files.xlsx
-cp /path/to/HippoCamp/Victoria/Fullset/Victoria_files.xlsx benchmark/analysis/data/Victoria_files.xlsx
-```
-
-`benchmark/sample_questions.json` is only a lightweight smoke-test file. It is not the full benchmark release.
-
-## RAG / search-agent pipeline
+## RAG / Search-Agent Pipeline
 
 Run all commands from `benchmark/`.
 
-### 1. Configure services
+### Inputs
+
+- `benchmark/HippoCamp_Gold/`
+- `benchmark/sample_questions.json` for smoke tests, or an official annotation JSON for full runs
+- provider keys in `../.env`
+
+### Setup
 
 ```bash
 cp ../.env.example ../.env
@@ -80,21 +74,21 @@ docker run -p 6333:6333 -p 6334:6334 \
   qdrant/qdrant
 ```
 
-### 2. Index the parsed text release
+Index the parsed-text release:
 
 ```bash
 python3 scripts/run_offline.py HippoCamp_Gold/ --all -e hippo
 ```
 
-### 3. Start the retriever server when required
+Start the retriever server when required by ReAct or Search-R1:
 
 ```bash
 python3 scripts/retriever_server.py -e hippo -p 18000
 ```
 
-### 4. Run the released methods
+### Run the Released Methods
 
-For smoke tests you can use `sample_questions.json`. For full runs, replace it with one of the official Hugging Face annotation JSONs.
+For smoke tests you can use `sample_questions.json`. For full runs, replace it with one of the official Hugging Face annotation JSON files.
 
 Standard RAG:
 
@@ -131,7 +125,15 @@ python3 scripts/run_query.py --batch sample_questions.json -e hippo \
   --generator search_r1 --evaluate
 ```
 
-### 5. Standalone evaluation
+### Outputs
+
+If you pass `--output-dir`, `scripts/run_query.py` writes:
+
+- one per-query result JSON named `<query_id>_<timestamp>.json`
+- `summary_<timestamp>.json` for the whole batch
+- `evaluation_<timestamp>.json` when `--evaluate` is enabled
+
+Run standalone evaluation on a saved result file:
 
 ```bash
 python3 scripts/run_evaluation.py /path/to/your_saved_query_results.json \
@@ -139,65 +141,38 @@ python3 scripts/run_evaluation.py /path/to/your_saved_query_results.json \
   --limit 1 --no-save
 ```
 
-## Benchmark analysis
-
-Run the analysis scripts from the repository root after downloading the six fullset files into `benchmark/analysis/data/`.
-
-Difficulty statistics and figure generation:
+To see all supported standalone metrics:
 
 ```bash
-python3 benchmark/analysis/difficulty/generate_difficulty_reports.py
+python3 scripts/run_evaluation.py --list-metrics
 ```
 
-Timestamp distribution figure:
-
-```bash
-python3 benchmark/analysis/file_time/file_combined_boxplot.py
-```
-
-Difficulty-vs-performance requires your own local evaluation outputs:
-
-```bash
-python3 benchmark/analysis/difficulty_vs_performance/difficulty_performance_plot.py \
-  --results-root /path/to/your/local_eval_results
-```
-
-All generated analysis figures are written to `benchmark/analysis/outputs/figs/`.
-
-## Terminal-agent pipeline
+## Terminal-Agent Pipeline
 
 Run the terminal-agent commands from the repository root.
 
-### 1. Load Docker images
+### Inputs
+
+- a loaded HippoCamp Docker image
+- a running named container
+- either a single `--question` string or an official annotation JSON passed through `--questions-file`
+
+### Load and Start a Container
 
 ```bash
 docker load -i hippocamp_adam_subset.tar
-docker load -i hippocamp_adam_fullset.tar
-docker load -i hippocamp_bei_subset.tar
-docker load -i hippocamp_bei_fullset.tar
-docker load -i hippocamp_victoria_subset.tar
-docker load -i hippocamp_victoria_fullset.tar
-```
-
-### 2. Start a container
-
-```bash
 docker run -it -p 18082:8080 --name hippocamp-adam-subset hippocamp/adam_subset:latest
 ```
 
-The container command layer is documented in [`docs/docker_api.md`](docker_api.md). The mapped host port `18082` serves the WebUI and the mirrored HTTP API. The prompt-based agent wrappers still execute the benchmark commands inside the container via `docker exec`, but the same file operations are also visible through the WebUI backend.
-
-The image metadata also exposes `5000/tcp`. The public workflow does not require mapping it, because the released WebUI and agent wrappers use `8080`. If you want full parity with the declared image ports for debugging, you can add an extra mapping such as `-p 58082:5000`.
-
-Quick WebUI/API smoke checks after the container is running:
+At the in-container prompt, start the WebUI if you want browser inspection:
 
 ```bash
-curl http://localhost:18082/api/files/list
-curl http://localhost:18082/api/history
-curl "http://localhost:18082/api/return_metadata/Guide%20to%20attending%20court.pdf"
+webui
 ```
 
-### 3. Run a terminal agent
+The container interface, WebUI, host-port mapping, and HTTP routes are documented in [`docs/docker_api.md`](./docker_api.md).
+
+### Single-Question Runs
 
 Gemini:
 
@@ -231,9 +206,9 @@ python3 agent/vllm.py \
   --log-json result/vllm_docker_session.json
 ```
 
-### 4. Batch evaluation with official annotation JSONs
+### Batch Evaluation
 
-Use one of the released annotation JSONs from Hugging Face as `--questions-file`. This is the recommended public workflow because those files already contain the QA pairs and the associated evidence annotations that the evaluators and analysis scripts expect.
+Use one of the released annotation JSONs from Hugging Face as `--questions-file`. This is the canonical public workflow because the JSON already contains the QA pairs and evidence annotations expected downstream.
 
 ```bash
 python3 agent/chatgpt_batch.py \
@@ -246,9 +221,22 @@ python3 agent/chatgpt_batch.py \
 
 The batch runners preserve fields such as `question`, `answer`, `file_path`, `evidence`, `rationale`, `agent_cap`, `QA_type`, and `profiling_type` when present, and derive `agent_file_list` from tool traces.
 
-With `--ensure-webui`, the wrappers start the WebUI automatically and post command logs to `/api/log_command`, so the browser view can follow the agent trajectory in real time.
+### Outputs
 
-### 5. Top-level evaluation
+Single-question wrappers write one session JSON to the path passed through `--log-json`.
+
+Batch wrappers write:
+
+- stdout and stderr logs under `--log-dir`
+- one per-question result JSON under `--result-dir`
+- `summary.jsonl` under `--result-dir`
+- `aggregate.json` under `--result-dir`, unless overridden by `--aggregate-json`
+
+With `--ensure-webui`, the wrappers start the WebUI automatically and mirror command traces to `/api/log_command`.
+
+## Prompt-Based Agent Evaluation
+
+Run `evaluate.py` from the repository root:
 
 ```bash
 python3 evaluate.py \
@@ -256,7 +244,9 @@ python3 evaluate.py \
   --print-results
 ```
 
-The input records for `evaluate.py` should contain:
+### Required Input Schema
+
+Each record should contain:
 
 - `query_id`
 - `query` or `question`
@@ -265,3 +255,36 @@ The input records for `evaluate.py` should contain:
 - `ground_file_list`
 - `agent_file_list`
 - `time_ms`
+
+### Outputs
+
+- `--per-query-results-json` writes the per-query judge results
+- `--aggregate-metrics-json` writes the aggregate summary
+- `--print-results` prints both to stdout
+
+This evaluator is intended for terminal-agent outputs and other custom agent outputs that follow the simplified result schema. It is different from `benchmark/scripts/run_evaluation.py`, which evaluates `run_query.py` outputs.
+
+## Benchmark Analysis
+
+Download the six fullset analysis files into `benchmark/analysis/data/` first. Exact copy commands are documented in [`benchmark/analysis/data/README.md`](../benchmark/analysis/data/README.md).
+
+Difficulty statistics and figure generation:
+
+```bash
+python3 benchmark/analysis/difficulty/generate_difficulty_reports.py
+```
+
+Timestamp distribution figure:
+
+```bash
+python3 benchmark/analysis/file_time/file_combined_boxplot.py
+```
+
+Difficulty-vs-performance with your own local evaluation outputs:
+
+```bash
+python3 benchmark/analysis/difficulty_vs_performance/difficulty_performance_plot.py \
+  --results-root /path/to/your/local_eval_results
+```
+
+All generated analysis figures are written to `benchmark/analysis/outputs/`.

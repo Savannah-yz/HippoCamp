@@ -1,53 +1,56 @@
 # HippoCamp: Benchmarking Contextual Agents on Personal Computers
 
-We present HippoCamp, a benchmark designed to evaluate agents on multimodal file management in realistic, user-centric environments. HippoCamp instantiates device-scale file systems over three real-world profiles, spanning documents, images, audio, video, emails, calendars, and other everyday digital artifacts, with 42.4 GB of data across more than 2K files. Building on these environments, we construct 581 QA pairs to evaluate search, evidence perception, and multi-step reasoning, and release 46.1K densely annotated structured trajectories for fine-grained failure diagnosis. Our experiments show that even the strongest current models still struggle with long-horizon retrieval, cross-modal reasoning, and evidence grounding in dense personal file systems.
+HippoCamp is a benchmark for evaluating contextual agents on realistic personal-computing environments. It covers multimodal file management across documents, images, audio, video, emails, calendars, and other everyday artifacts, with 42.4 GB of data across more than 2K files. On top of these environments, HippoCamp provides 581 QA pairs and 46.1K structured trajectory annotations for analyzing search, perception, and multi-step reasoning failures.
 
 [![Project Page](https://img.shields.io/badge/Project-Page-1f6feb)](https://savannah-yz.github.io/project_page/HippoCamp/)
 [![Data Visualization](https://img.shields.io/badge/Data-Visualization-0a7ea4)](https://savannah-yz.github.io/data_visualization/HippoCamp/)
 [![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Dataset-f59e0b)](https://huggingface.co/datasets/MMMem-org/HippoCamp)
 [![Paper](https://img.shields.io/badge/Paper-PDF-b91c1c)](docs/paper/HippoCamp.pdf)
 [![Leaderboard](https://img.shields.io/badge/Leaderboard-Project%20Page-16a34a)](https://savannah-yz.github.io/project_page/HippoCamp/)
-[![Video](https://img.shields.io/badge/Video-XXXXXXX-6b7280)](XXXXXXX)
-[![Docker Images](https://img.shields.io/badge/Docker-Images-2496ed)](XXXXXXX)
-[![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab)](#install)
+[![Video Link](https://img.shields.io/badge/Video-Link-coming_soon-6b7280)](#video)
+[![Docker Images](https://img.shields.io/badge/Docker-Images-coming_soon-2496ed)](#docker-images)
 
 ![HippoCamp teaser](assets/figs/teaser_overview.png)
 
-## News
+## Release Status
 
-- `[02/15/2026]`: Submitted to ECCV.
-- `[03/26/2026]`: GitHub repository released.
-- `[03/26/2026]`: Project page, data visualization, and Hugging Face dataset released.
+- HippoCamp was submitted to ECCV on February 15, 2026.
+- Public release dates for the repository, project page, dataset, and visualization assets will be finalized later.
+- The demo video link, Docker archive download links, and final citation are not finalized yet.
 
 ## Overview
 
-HippoCamp instantiates three archetypal personal-computing environments and evaluates 2 task families (Profiling & Factual Retention):
+HippoCamp instantiates three archetypal personal-computing environments and evaluates two task families:
 
-- **Factual Retention**: evaluates an agent's capability to retrieve, comprehend, and reason over factual information distributed across multimodal files within the user's device. In the paper and Appendix C.1.1, this task family covers atomic fact retrieval, document-level localization, temporal or comparative fact recovery, and normative clause extraction, with answers required to remain fully traceable to explicit file-grounded evidence.
-- **Profiling**: evaluates whether an agent can construct a coherent user-level model from device-resident files by aggregating grounded personal facts across time. Profiling queries require integrating weak, distributed signals across files, modalities, and time to infer preferences, behavioral patterns, scheduling constraints, retrospective reflections, and workflow patterns into a globally consistent user model.
+- **Factual Retention**: retrieve, comprehend, and reason over factual information grounded in multimodal files.
+- **Profiling**: aggregate weak, distributed evidence across files and time to infer a coherent user model.
 
-The released benchmark covers:
+The current release includes:
 
-- **42.4 GB** of data
+- **42.4 GB** of benchmark data
 - **2K+** real-world files
 - **581** QA pairs
 - **46.1K** structured trajectory annotations
 - **3** user profiles
-- **2** task families (Profiling & Factual Retention)
+- **2** task families
 
 The released annotation JSONs follow the hierarchy below.
 
 ![Annotation hierarchy](assets/figs/annotation_hierarchy.png)
 
-## What Is Released
+## Release Assets
 
-This public release separates code, benchmark data, and Docker artifacts cleanly.
+| Asset | Status | Location | Contents |
+| --- | --- | --- | --- |
+| GitHub repository | Available | this repository | code, configs, docs, figures, evaluation scripts, sample assets |
+| Hugging Face dataset | Available | <https://huggingface.co/datasets/MMMem-org/HippoCamp> | raw environments, official annotation JSONs, `HippoCamp_Gold`, metadata spreadsheets |
+| Project page | Available | <https://savannah-yz.github.io/project_page/HippoCamp/> | benchmark overview, examples, leaderboard |
+| Data visualization | Available | <https://savannah-yz.github.io/data_visualization/HippoCamp/> | interactive environment visualization |
+| Docker archives | Pending | to be added at release | six prebuilt benchmark images |
+| Demo video | Pending | to be added at release | end-to-end WebUI and agent demo |
+| Citation | Pending | to be finalized after release | final BibTeX and `CITATION.cff` |
 
-- **GitHub**: code, configs, documentation, the paper PDF, public figures and tables, evaluation scripts, and lightweight example assets for smoke testing.
-- **Hugging Face**: the benchmark data release at <https://huggingface.co/datasets/MMMem-org/HippoCamp>, including the source personal-computing environments, the official QA and annotation JSON files, `HippoCamp_Gold`, and the metadata spreadsheets.
-- **Google Drive**: Docker image archives for the six benchmark environments. Replace the `XXXXXXX` placeholders below with your release links.
-- **Project Page**: benchmark overview, examples, and leaderboard.
-- **Data Visualization**: interactive visualization of the benchmark personal-computing environments.
+## Data Layout
 
 The Hugging Face dataset is the authoritative data release. Its main structure is:
 
@@ -82,12 +85,12 @@ HippoCamp/
         └── Victoria_files.xlsx
 ```
 
-These artifacts play different roles in the release:
+These artifacts serve different roles:
 
-- The six source directories store the raw files for the three personal-computing environments.
-- The six annotation JSON files store the released QA pairs together with explicit annotations such as `file_path`, `file_number`, `file_modality`, `file_type`, `evidence`, `rationale`, `agent_cap`, `QA_type`, and `profiling_type` when applicable.
-- `HippoCamp_Gold` stores the parsed text version of the benchmark files as JSON. Each item follows the high-level schema `{file_info, summary, segments}`. `file_info` records file identity, modality, timestamps, location metadata, and QA linkage; `segments` keep modality-specific parsed content such as page-level document text or timestamped audio transcription.
-- The `*_files.xlsx` spreadsheets store explicit file metadata such as creation time, modification time, and location fields. The Hugging Face release also provides `HippoCamp/update_metadata_from_xlsx.py` for assigning spreadsheet metadata back to the corresponding files.
+- The six source directories store the raw personal-computing files.
+- The six annotation JSON files store released QA pairs together with annotations such as `file_path`, `file_number`, `file_modality`, `file_type`, `evidence`, `rationale`, `agent_cap`, `QA_type`, and `profiling_type`.
+- `HippoCamp_Gold` stores parsed-text JSON files with the schema `{file_info, summary, segments}`.
+- The `*_files.xlsx` spreadsheets store explicit metadata such as creation time, modification time, and location fields.
 
 The Hugging Face Dataset Viewer exposes six configs, each with `profiling` and `factual_retention` splits:
 
@@ -100,23 +103,24 @@ The Hugging Face Dataset Viewer exposes six configs, each with `profiling` and `
 | `victoria_fullset` | Victoria | Full | 711 | 223 | 20 | 203 |
 | `victoria_subset` | Victoria | Subset | 137 | 11 | 6 | 5 |
 
-For local analysis reproduction, download the fullset annotation files and metadata spreadsheets from Hugging Face and place them under `benchmark/analysis/data/` exactly as follows:
+## What To Download And Why
 
-```bash
-mkdir -p benchmark/analysis/data
+All public benchmark data is distributed from the Hugging Face dataset page:
 
-cp /path/to/HippoCamp/Adam/Fullset/Adam.json benchmark/analysis/data/Adam.json
-cp /path/to/HippoCamp/Bei/Fullset/Bei.json benchmark/analysis/data/Bei.json
-cp /path/to/HippoCamp/Victoria/Fullset/Victoria.json benchmark/analysis/data/Victoria.json
+- <https://huggingface.co/datasets/MMMem-org/HippoCamp>
 
-cp /path/to/HippoCamp/Adam/Fullset/Adam_files.xlsx benchmark/analysis/data/Adam_files.xlsx
-cp /path/to/HippoCamp/Bei/Fullset/Bei_files.xlsx benchmark/analysis/data/Bei_files.xlsx
-cp /path/to/HippoCamp/Victoria/Fullset/Victoria_files.xlsx benchmark/analysis/data/Victoria_files.xlsx
-```
+On that page, open the `Files and versions` tab to browse and download the released directories and files.
 
-After that, the analysis scripts can be run directly from the repository. See [`benchmark/analysis/README.md`](benchmark/analysis/README.md) for the exact commands.
+| If you want to... | Download this | Why it is needed | Local destination |
+| --- | --- | --- | --- |
+| run the RAG / search-agent pipeline | `HippoCamp_Gold/` | it stores the parsed-text JSON used for indexing and retrieval | `benchmark/HippoCamp_Gold/` |
+| run terminal-agent batch evaluation | one official annotation JSON such as `Adam.json` or `Adam_Subset.json` | it provides the released questions, answers, and evidence annotations used as `--questions-file` | any local path |
+| reproduce the analysis figures | `Adam.json`, `Bei.json`, `Victoria.json`, `Adam_files.xlsx`, `Bei_files.xlsx`, `Victoria_files.xlsx` | the analysis scripts read the fullset annotations and metadata spreadsheets directly | `benchmark/analysis/data/` |
+| inspect or study the raw benchmark environments | the six source directories under `Adam/`, `Bei/`, and `Victoria/` | they contain the original personal-computing files | any local path |
 
-## Public Repository Structure
+`HippoCamp_Gold` is not just an optional extra. It is the parsed-text release that powers the public RAG workflow and the Docker-side `return_txt` interface. If you only want to browse the raw files in Docker, you do not need it locally. If you want to run the released retrieval pipeline, you do.
+
+## Repository Structure
 
 ```text
 .
@@ -153,7 +157,7 @@ After that, the analysis scripts can be run directly from the repository. See [`
 
 ## Install
 
-### 1. Clone and create a Python environment
+### 1. Clone the repository and create an environment
 
 ```bash
 git clone https://github.com/Savannah-yz/HippoCamp.git
@@ -165,24 +169,20 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-This public release uses a single `requirements.txt`. The local-model dependencies used by the released Qwen and Search-R1 baselines are already merged into it, so there is no second requirements file to manage.
-
 Optional editable install for the benchmark subsystem:
 
 ```bash
 pip install -e ./benchmark --no-deps
 ```
 
-`requirements.txt` already installs the merged dependency set used by the public release, so `--no-deps` avoids unnecessary resolver backtracking during the editable install.
+`requirements.txt` already includes the merged dependency set used by the public release.
 
-### 2. Configure runtime caches
+### 2. Configure local caches
 
 ```bash
 export XDG_CACHE_HOME=$PWD/.cache
 export MPLCONFIGDIR=$PWD/.cache/matplotlib
 ```
-
-These settings keep matplotlib and fontconfig caches inside the repository instead of writing to system locations.
 
 ### 3. Create `.env`
 
@@ -190,21 +190,17 @@ These settings keep matplotlib and fontconfig caches inside the repository inste
 cp .env.example .env
 ```
 
-The merged root `.env` groups terminal-agent keys, RAG and generator keys, evaluation and judge settings, optional vector DB and Mongo settings, and optional local-model service ports.
+The root `.env` covers terminal-agent keys, RAG provider keys, judge settings, and optional local-service configuration.
 
-### 4. Download benchmark data from Hugging Face
+### 4. Download benchmark data
 
-The Hugging Face dataset is the authoritative source for all benchmark data:
+Use the Hugging Face dataset pieces as follows:
 
-- <https://huggingface.co/datasets/MMMem-org/HippoCamp>
+- **RAG / search-agent pipeline**: place the parsed-text release under `benchmark/HippoCamp_Gold/`.
+- **Terminal-agent batch evaluation**: use an official annotation JSON such as `Adam.json`, `Adam_Subset.json`, `Bei.json`, or `Victoria_Subset.json` as `--questions-file`.
+- **Analysis reproduction**: place the three fullset annotation JSON files and the three fullset metadata spreadsheets under `benchmark/analysis/data/`.
 
-Use the dataset pieces as follows:
-
-- **RAG / retriever pipeline**: place the parsed text release under `benchmark/HippoCamp_Gold/`.
-- **Terminal-agent batch evaluation**: use one of the official annotation JSON files such as `Adam.json`, `Adam_Subset.json`, `Bei.json`, or `Victoria_Subset.json` as `--questions-file`.
-- **Analysis reproduction**: download the three fullset annotation JSON files and the three fullset metadata spreadsheets from Hugging Face into `benchmark/analysis/data/`.
-
-Concrete local placement for the analysis scripts:
+Concrete analysis-input placement:
 
 ```bash
 mkdir -p benchmark/analysis/data
@@ -218,252 +214,113 @@ cp /path/to/HippoCamp/Bei/Fullset/Bei_files.xlsx benchmark/analysis/data/Bei_fil
 cp /path/to/HippoCamp/Victoria/Fullset/Victoria_files.xlsx benchmark/analysis/data/Victoria_files.xlsx
 ```
 
-The public repository intentionally does not ship those analysis inputs. They should be downloaded from Hugging Face into the paths above.
+If you are unsure which Hugging Face asset corresponds to your workflow, use the `What To Download And Why` table above first.
 
 ### 5. Install Docker Desktop
-
-Install Docker Desktop before using the benchmark images:
 
 - macOS / Windows: <https://www.docker.com/products/docker-desktop/>
 - Linux: follow your distribution-specific Docker Engine setup
 
-### 6. Download Docker images
+## Docker Images
 
-The Docker archives are intentionally not hosted on GitHub. Replace the placeholders with your Google Drive links.
+The public workflow uses six prebuilt Docker archives. Their download links are not finalized yet, but the expected archive names, image names, and host-port mappings are fixed:
 
 | Archive | Image | Container name | Host port | Download |
 | --- | --- | --- | --- | --- |
-| `hippocamp_bei_subset.tar` | `hippocamp/bei_subset:latest` | `hippocamp-bei-subset` | `18081` | `XXXXXXX` |
-| `hippocamp_adam_subset.tar` | `hippocamp/adam_subset:latest` | `hippocamp-adam-subset` | `18082` | `XXXXXXX` |
-| `hippocamp_victoria_subset.tar` | `hippocamp/victoria_subset:latest` | `hippocamp-victoria-subset` | `18083` | `XXXXXXX` |
-| `hippocamp_bei_fullset.tar` | `hippocamp/bei_fullset:latest` | `hippocamp-bei-fullset` | `18084` | `XXXXXXX` |
-| `hippocamp_adam_fullset.tar` | `hippocamp/adam_fullset:latest` | `hippocamp-adam-fullset` | `18085` | `XXXXXXX` |
-| `hippocamp_victoria_fullset.tar` | `hippocamp/victoria_fullset:latest` | `hippocamp-victoria-fullset` | `18086` | `XXXXXXX` |
+| `hippocamp_bei_subset.tar` | `hippocamp/bei_subset:latest` | `hippocamp-bei-subset` | `18081` | To be added at release |
+| `hippocamp_adam_subset.tar` | `hippocamp/adam_subset:latest` | `hippocamp-adam-subset` | `18082` | To be added at release |
+| `hippocamp_victoria_subset.tar` | `hippocamp/victoria_subset:latest` | `hippocamp-victoria-subset` | `18083` | To be added at release |
+| `hippocamp_bei_fullset.tar` | `hippocamp/bei_fullset:latest` | `hippocamp-bei-fullset` | `18084` | To be added at release |
+| `hippocamp_adam_fullset.tar` | `hippocamp/adam_fullset:latest` | `hippocamp-adam-fullset` | `18085` | To be added at release |
+| `hippocamp_victoria_fullset.tar` | `hippocamp/victoria_fullset:latest` | `hippocamp-victoria-fullset` | `18086` | To be added at release |
 
-Load the images:
+Load an archive once you have it:
 
 ```bash
-docker load -i hippocamp_bei_subset.tar
 docker load -i hippocamp_adam_subset.tar
-docker load -i hippocamp_victoria_subset.tar
-docker load -i hippocamp_bei_fullset.tar
-docker load -i hippocamp_adam_fullset.tar
-docker load -i hippocamp_victoria_fullset.tar
 ```
 
-Start the containers:
+Start a container:
 
 ```bash
-docker run -it -p 18081:8080 --name hippocamp-bei-subset hippocamp/bei_subset:latest
 docker run -it -p 18082:8080 --name hippocamp-adam-subset hippocamp/adam_subset:latest
-docker run -it -p 18083:8080 --name hippocamp-victoria-subset hippocamp/victoria_subset:latest
-docker run -it -p 18084:8080 --name hippocamp-bei-fullset hippocamp/bei_fullset:latest
-docker run -it -p 18085:8080 --name hippocamp-adam-fullset hippocamp/adam_fullset:latest
-docker run -it -p 18086:8080 --name hippocamp-victoria-fullset hippocamp/victoria_fullset:latest
 ```
 
-These `docker run -it ...` commands start the interactive benchmark shell, not the browser WebUI. If you open `http://localhost:<host-port>` before starting `webui` inside the container, the page will not load.
-
-If you already created a named container earlier, running the same `docker run ... --name <container>` command again will fail with a Docker name-conflict error. In that case, reuse the existing container instead of creating a new one:
-
-```bash
-docker start -ai hippocamp-adam-fullset
-```
-
-If you really want a fresh container with the same name, remove the old one first:
-
-```bash
-docker rm -f hippocamp-adam-fullset
-docker run -it -p 18085:8080 --name hippocamp-adam-fullset hippocamp/adam_fullset:latest
-```
-
-For example, to open the Adam fullset WebUI:
-
-1. In Terminal A, start the container:
-
-```bash
-docker run -it -p 18085:8080 --name hippocamp-adam-fullset hippocamp/adam_fullset:latest
-```
-
-   If the container already exists, use `docker start -ai hippocamp-adam-fullset` instead.
-
-2. At the in-container prompt, start the WebUI:
+The `docker run -it ...` command gives you the interactive shell. Start the browser WebUI inside the container with:
 
 ```bash
 webui
 ```
 
-3. Keep that terminal open, then open `http://localhost:18085` in your browser.
+For detailed container, WebUI, and HTTP-route behavior, see [`docs/docker_api.md`](docs/docker_api.md).
 
-The image metadata exposes both `8080/tcp` and `5000/tcp`. In the released runtime that ships inside the image, the public WebUI and documented HTTP routes are served on `HIPPOCAMP_PORT` (default `8080`), and the released agent wrappers also auto-detect and use this `8080` mapping. The file interface is therefore available in two forms:
+## Inputs and Outputs
 
-- the CLI commands executed inside the container, which is how the released prompt-based agent wrappers interact with the environment
-- the WebUI and HTTP routes on the mapped `8080` port, which mirror the same file operations for browser-based inspection and external clients
+The main workflows use different inputs and produce different artifacts:
 
-The extra `5000/tcp` exposure is present in the image metadata, but it is not used by the released agent wrappers or the inspected WebUI runtime. You do not need to publish `5000` for the public reproduction workflow unless you want full parity with the image's declared ports for debugging.
+| Workflow | Main inputs | Required external assets | Main outputs |
+| --- | --- | --- | --- |
+| RAG / search-agent pipeline | `benchmark/sample_questions.json` for smoke tests, or an official annotation JSON via `--batch` | `benchmark/HippoCamp_Gold/` | per-query result JSONs in `--output-dir`, plus `summary_*.json` and `evaluation_*.json` |
+| Terminal agent, single question | a Docker container plus `--question` | Docker image archive | one session log JSON via `--log-json` |
+| Terminal agent, batch | `--questions-file` pointing to an official annotation JSON | Docker image archive | `summary.jsonl`, per-question result JSON files, `aggregate.json`, and stdout/stderr logs |
+| Top-level evaluator | JSON or JSONL file via `evaluate.py --input-dataset` | none | per-query judge results JSON and aggregate metrics JSON |
+| Analysis scripts | fullset annotation JSON files and `*_files.xlsx` spreadsheets | Hugging Face fullset assets | figures and reports under `benchmark/analysis/outputs/` |
 
-To work with the WebUI on a running container:
+If you are unsure which files to feed into which script, start with [`docs/reproduction.md`](docs/reproduction.md), [`benchmark/README.md`](benchmark/README.md), and [`agent/README.md`](agent/README.md).
 
-```bash
-docker exec -it hippocamp-adam-subset bash -lc 'webui'
-docker exec -it hippocamp-adam-subset bash -lc 'webui_status'
-docker exec -it hippocamp-adam-subset bash -lc 'webui_stop'
-```
+## Reproduction Paths
 
-After `webui` starts, open the matching host URL in your browser:
-
-- `hippocamp-bei-subset` -> <http://localhost:18081>
-- `hippocamp-adam-subset` -> <http://localhost:18082>
-- `hippocamp-victoria-subset` -> <http://localhost:18083>
-- `hippocamp-bei-fullset` -> <http://localhost:18084>
-- `hippocamp-adam-fullset` -> <http://localhost:18085>
-- `hippocamp-victoria-fullset` -> <http://localhost:18086>
-
-The released `agent/*.py` wrappers can also start the WebUI automatically with `--ensure-webui` and auto-detect the mapped URL from `docker port <container> 8080/tcp`.
-
-If the browser still cannot open `http://localhost:<host-port>`, check the following before debugging the benchmark code itself:
-
-1. Confirm the container is still running and the port mapping exists:
-
-```bash
-docker ps --format '{{.Names}}\t{{.Ports}}\t{{.Status}}' | grep hippocamp-adam-fullset
-```
-
-Expected output should include `0.0.0.0:18085->8080/tcp` for `hippocamp-adam-fullset`.
-
-2. Confirm you already started the WebUI inside the container and saw the success banner:
-
-```bash
-webui
-```
-
-3. If the container was originally created without `-p 18085:8080`, `docker start -ai` will not add that mapping retroactively. Remove and recreate it:
-
-```bash
-docker rm -f hippocamp-adam-fullset
-docker run -it -p 18085:8080 --name hippocamp-adam-fullset hippocamp/adam_fullset:latest
-```
-
-4. If the mapping is present and `webui` is already running, but `http://localhost:18085` or `http://127.0.0.1:18085` still does not respond, restart Docker Desktop and recreate the container. At that point the issue is in Docker host-port forwarding rather than the HippoCamp container itself.
-
-Useful WebUI HTTP routes on the mapped host port include:
-
-```bash
-curl http://localhost:18082/api/files/list
-curl http://localhost:18082/api/history
-curl "http://localhost:18082/api/return_img/Guide%20to%20attending%20court.pdf?page=2"
-```
-
-For a full route reference, including `return_txt`, `return_ori`, `return_metadata`, feature flags, history sync, and the WebSocket-backed WebUI behavior, see [`docs/docker_api.md`](docs/docker_api.md).
-
-## End-to-End Evaluation
-
-HippoCamp exposes two complementary reproduction paths:
+HippoCamp exposes two complementary evaluation paths:
 
 - a **RAG / search-agent** pipeline under `benchmark/`
 - a **terminal-agent** pipeline under `agent/`
 
-Longer command cookbooks are collected in [`docs/reproduction.md`](docs/reproduction.md).
+Longer command sequences live in [`docs/reproduction.md`](docs/reproduction.md).
 
 ### A. RAG / Search-Agent Pipeline
 
 Run these commands from `benchmark/`.
 
-1. Copy the parsed text release from Hugging Face into `benchmark/HippoCamp_Gold/`.
+1. Copy the parsed-text release into `benchmark/HippoCamp_Gold/`.
 2. Copy `.env` from the repository root and configure `configs/services.yaml` if needed.
 3. Start Qdrant if you use the default local vector-store setup.
+4. Build the local index.
+5. Run a baseline.
 
 ```bash
 docker run -p 6333:6333 -p 6334:6334 \
   -v "$PWD/data/qdrant_storage:/qdrant/storage" \
   qdrant/qdrant
-```
 
-4. Build the local index:
-
-```bash
 python3 scripts/run_offline.py HippoCamp_Gold/ --all -e hippo
-```
 
-5. Start the retriever server when using ReAct or Search-R1:
-
-```bash
-python3 scripts/retriever_server.py -e hippo -p 18000
-```
-
-6. Run the released methods. Replace `sample_questions.json` with one of the official Hugging Face annotation JSONs for full benchmark evaluation.
-
-```bash
-# Standard RAG
 python3 scripts/run_query.py --batch sample_questions.json -e hippo \
   --retrieval standard_rag --generator gemini --evaluate
-
-# Self RAG
-python3 scripts/run_query.py --batch sample_questions.json -e hippo \
-  --retrieval self_rag --generator gemini --evaluate
-
-# ReAct (Gemini-2.5-flash)
-python3 scripts/run_query.py --batch sample_questions.json -e hippo \
-  --generator gemini_react --evaluate
-
-# ReAct (Qwen3-30B-A3B)
-python3 scripts/run_query.py --batch sample_questions.json -e hippo \
-  --generator qwen_react --evaluate
-
-# Search-R1
-python3 scripts/run_query.py --batch sample_questions.json -e hippo \
-  --generator search_r1 --evaluate
 ```
 
-7. Run standalone evaluation on saved results:
+Use `sample_questions.json` only for smoke tests. For full evaluation, replace it with one of the official Hugging Face annotation JSON files.
 
-```bash
-python3 scripts/run_evaluation.py /path/to/your_saved_query_results.json \
-  --metrics rouge bleu retrieval_precision retrieval_recall retrieval_f1 \
-  --limit 1 --no-save
-```
+Important outputs:
 
-Method notes:
-
-- **Standard RAG / Self RAG**: require embeddings, vector-store setup, and generator APIs.
-- **ReAct (Gemini-2.5-flash)**: requires a running retriever server and Gemini API access.
-- **ReAct (Qwen3-30B-A3B)**: requires a running retriever server and local GPU-backed model serving.
-- **Search-R1**: requires a running retriever server and local model support.
+- `--output-dir` writes one per-query JSON file named `<query_id>_<timestamp>.json`
+- `--output-dir` also writes `summary_<timestamp>.json`
+- `--evaluate` together with `--output-dir` writes `evaluation_<timestamp>.json`
 
 ### B. Terminal-Agent Pipeline
 
 Run the terminal-agent commands from the repository root.
 
-The correct `--questions-file` for batch evaluation is an official Hugging Face annotation JSON, not `HippoCamp_Gold`. These JSON files contain the QA pairs together with the file-grounded annotations that the batch runners propagate into the result payload.
-
-Single-question examples:
+Single-question example:
 
 ```bash
-# Gemini terminal agent
-python3 agent/gemini.py \
-  --container hippocamp-adam-subset \
-  --question "What does the guide say about court dress code?" \
-  --ensure-webui \
-  --log-json result/gemini_docker_session.json
-
-# GPT-5.2 terminal agent
 python3 agent/chatgpt.py \
   --container hippocamp-adam-subset \
   --question "What does the guide say about court dress code?" \
   --ensure-webui \
   --log-json result/chatgpt_docker_session.json
-
-# OpenAI-compatible / vLLM terminal agent
-python3 agent/vllm.py \
-  --container hippocamp-adam-subset \
-  --question "What does the guide say about court dress code?" \
-  --api-url http://127.0.0.1:8000/v1 \
-  --model Qwen/Qwen2.5-VL-7B-Instruct \
-  --ensure-webui \
-  --log-json result/vllm_docker_session.json
 ```
 
-Batch example with an official Hugging Face annotation JSON:
+Batch example:
 
 ```bash
 python3 agent/chatgpt_batch.py \
@@ -474,75 +331,167 @@ python3 agent/chatgpt_batch.py \
   --result-dir result/chatgpt_batch
 ```
 
-The batch runners accept JSON, JSONL, or TXT question files, but the released benchmark JSONs are the canonical input because they already provide the fields used downstream by the evaluators. During batch execution, the runners preserve fields such as `question`, `answer`, `file_path`, `evidence`, `rationale`, `agent_cap`, `QA_type`, and `profiling_type` when present, and they derive `agent_file_list` from tool calls like `return_txt`, `return_img`, `return_ori`, and `return_metadata`.
+The canonical batch input is an official annotation JSON from Hugging Face, not `HippoCamp_Gold`.
+
+Important outputs:
+
+- `--log-json` stores the single-question session trace
+- `--log-dir` stores stdout and stderr logs
+- `--result-dir` stores one per-question result JSON, `summary.jsonl`, and `aggregate.json`
 
 #### Prompt Configs For Docker-Based Agent Evaluation
 
-The terminal-agent wrappers expose `--prompt-config` so you can evaluate under different auxiliary-interface assumptions without changing the Docker image itself. The config definitions live in [`agent/prompt_modules/config.py`](agent/prompt_modules/config.py).
+The terminal-agent wrappers expose `--prompt-config` so you can control whether the agent may use:
 
-This is useful when you want to keep testing close to a model's native architecture while still controlling whether the agent is allowed to use:
+- `return_ori`: original source files
+- `return_txt`: parsed-text JSON backed by `HippoCamp_Gold`
+- `return_img`: rendered visual assistance
 
-- `return_ori`: the original source file
-- `return_txt`: the parsed text JSON backed by `/hippocamp/gold` (`HippoCamp_Gold`)
-- `return_img`: rendered image or page-view assistance
-
-The released wrappers map `--prompt-config` to the Docker-side `return_txt` and `return_img` feature flags as follows:
+The released wrappers map `--prompt-config` to the Docker-side feature flags as follows:
 
 | Config | `return_ori` | `return_txt` | `return_img` | Recommended use |
 | --- | --- | --- | --- | --- |
-| `config0` | on | on | on | Default setting. Use the full HippoCamp auxiliary interface. |
-| `config1` | on | off | off | Source-only setting. Use this when you want the strongest no-helper setup: no `HippoCamp_Gold` text JSON and no rendered-image assistance. |
-| `config2` | on | off | on | Image-enabled, text-disabled. Use this when the model can consume multimodal image inputs but you do not want help from `HippoCamp_Gold`. |
-| `config3` | on | on | off | Text-enabled, image-disabled. Use this when the model can use parsed text JSON but cannot accept image-style multimodal inputs. |
+| `config0` | on | on | on | Full auxiliary interface |
+| `config1` | on | off | off | Source-only setting |
+| `config2` | on | off | on | Image-enabled, text-disabled |
+| `config3` | on | on | off | Text-enabled, image-disabled |
 
-Notes:
+### C. Prompt-Based Agent Output Evaluation
 
-- If you want to disable image multimodal assistance completely, choose `config3`.
-- If you want a source-only evaluation with only `return_ori`, choose `config1`.
-- `config0` remains the max-assistance setting for agents that can use both parsed text and rendered visual previews.
+For terminal-agent outputs and other custom agent results, use `evaluate.py`.
+
+See the `Evaluation` section below for:
+
+- the exact input schema
+- the supported metrics
+- example commands
+- the difference between `evaluate.py` and `benchmark/scripts/run_evaluation.py`
+
+## Evaluation
+
+HippoCamp currently exposes two distinct evaluation entrypoints. They are meant for different output formats.
+
+### 1. RAG / Search-Agent Evaluation
+
+Use these when your outputs come from `benchmark/scripts/run_query.py`.
+
+Code paths:
+
+- `benchmark/scripts/run_query.py --evaluate`
+- `benchmark/scripts/run_evaluation.py`
+
+`run_query.py --evaluate` is the integrated path during generation. `run_evaluation.py` is the standalone evaluator for saved `summary_*.json` files.
+
+RAG evaluation metrics currently include:
+
+- answer-quality metrics: `rouge`, `bleu`, `exact_match`, `covered_exact_match`, `semantic_similarity`, `bert_score`
+- chunk-retrieval metrics: `retrieval_precision`, `retrieval_recall`, `retrieval_f1`
+- optional LLM judge: `llm_judge`
+- file-level retrieval metrics: precision / recall / F1 computed from `file_list` and `retrieved_file_list`
 
 Examples:
 
 ```bash
-# Default: full auxiliary help
-python3 agent/chatgpt_batch.py \
-  --container hippocamp-adam-subset \
-  --questions-file /path/to/Adam_Subset.json \
-  --prompt-config config0 \
-  --ensure-webui \
-  --log-dir log/chatgpt_batch \
-  --result-dir result/chatgpt_batch
+# Evaluate while running the query pipeline
+python3 scripts/run_query.py --batch sample_questions.json -e hippo \
+  --retrieval standard_rag --generator gemini --evaluate
 
-# Source-only: only return_ori, no HippoCamp_Gold, no return_img
-python3 agent/chatgpt_batch.py \
-  --container hippocamp-adam-subset \
-  --questions-file /path/to/Adam_Subset.json \
-  --prompt-config config1 \
-  --ensure-webui \
-  --log-dir log/chatgpt_batch_source_only \
-  --result-dir result/chatgpt_batch_source_only
+# Re-evaluate an existing result directory
+python3 benchmark/scripts/run_evaluation.py /path/to/output_dir
 
-# No image multimodal input, but keep HippoCamp_Gold text JSON
-python3 agent/chatgpt_batch.py \
-  --container hippocamp-adam-subset \
-  --questions-file /path/to/Adam_Subset.json \
-  --prompt-config config3 \
-  --ensure-webui \
-  --log-dir log/chatgpt_batch_text_only \
-  --result-dir result/chatgpt_batch_text_only
+# Inspect available metrics
+python3 benchmark/scripts/run_evaluation.py --list-metrics
+
+# Run specific metrics explicitly
+python3 benchmark/scripts/run_evaluation.py /path/to/output_dir \
+  --metrics rouge bleu semantic_similarity llm_judge
 ```
 
-With `--ensure-webui`, the wrappers also start the in-container Flask-SocketIO WebUI and mirror command traces to `http://localhost:<mapped-host-port>/api/log_command`. This lets you watch the agent browse files, inspect previews, and accumulate evidence in the browser while the terminal loop is running. The planned video demo will show this WebUI-driven trajectory.
+`benchmark/scripts/run_evaluation.py` accepts either:
 
-Top-level evaluation:
+- a directory containing `summary_*.json`
+- or a specific `summary_*.json` file
 
-```bash
-python3 evaluate.py \
-  --input-dataset /tmp/hippocamp_eval_sample.json \
-  --print-results
+If you request `llm_judge`, configure Azure judge credentials through `.env` or environment variables such as `AZURE_OPENAI_ENDPOINT` and `AZURE_OPENAI_API_KEY`.
+
+Typical `run_query.py` result record:
+
+```json
+{
+  "timestamp": "20260327_120000",
+  "provider": "gemini",
+  "bench": "hippo",
+  "query_id": "1",
+  "query": "What does the guide say about court dress code?",
+  "ground_truth": "Dress neatly and appropriately for court.",
+  "answer": "The guide says court attendees should dress neatly and appropriately.",
+  "retrieved_chunks": [
+    {
+      "rank": 1,
+      "content": "You should dress neatly and appropriately for court...",
+      "score": 0.91,
+      "id": "chunk_001",
+      "metadata": {
+        "file_info": {
+          "file_path": "Guide to attending court.pdf",
+          "file_type": "pdf",
+          "file_name": "Guide to attending court.pdf"
+        }
+      }
+    }
+  ],
+  "file_list": [
+    "Guide to attending court.pdf"
+  ],
+  "retrieved_file_list": [
+    "Guide to attending court.pdf"
+  ],
+  "execution_time_ms": 4231
+}
 ```
 
-The expected result schema for `evaluate.py` is:
+Typical `benchmark/scripts/run_evaluation.py` output record:
+
+```json
+{
+  "query_id": "1",
+  "query": "What does the guide say about court dress code?",
+  "answer": "The guide says court attendees should dress neatly and appropriately.",
+  "ground_truth": "Dress neatly and appropriately for court.",
+  "judge": {
+    "llm_as_a_judge_score": 4,
+    "pred": "yes",
+    "score_0_5": 4,
+    "score_normalized": 0.8,
+    "api_status": "success"
+  },
+  "simple_metrics": {
+    "rouge": {
+      "score": 0.71
+    },
+    "semantic_similarity": {
+      "score": 0.89
+    }
+  },
+  "file_list_metrics": {
+    "f1_score": 1.0,
+    "recall": 1.0,
+    "precision": 1.0
+  },
+  "timestamp": "20260327_120530"
+}
+```
+
+### 2. Prompt-Based Agent Evaluation
+
+Use [`evaluate.py`](evaluate.py) for terminal-agent outputs and other custom agent outputs that follow the simplified result schema.
+
+This evaluator currently computes:
+
+- LLM-as-a-judge answer quality
+- file-list precision / recall / F1 from `ground_file_list` versus `agent_file_list`
+
+Expected input fields per record:
 
 - `query_id`
 - `query` or `question`
@@ -551,6 +500,118 @@ The expected result schema for `evaluate.py` is:
 - `ground_file_list`
 - `agent_file_list`
 - `time_ms`
+
+Typical input sources:
+
+- `result/<batch_name>/aggregate.json` produced by `agent/*_batch.py`
+- any custom JSON or JSONL file that follows the schema above
+
+Example:
+
+```bash
+python3 evaluate.py \
+  --input-dataset result/chatgpt_batch/aggregate.json \
+  --per-query-results-json result/chatgpt_batch/judge_results.json \
+  --aggregate-metrics-json result/chatgpt_batch/judge_summary.json
+```
+
+You can also pass judge credentials explicitly:
+
+```bash
+python3 evaluate.py \
+  --input-dataset result/chatgpt_batch/aggregate.json \
+  --judge-api-url "$AZURE_OPENAI_ENDPOINT" \
+  --judge-api-key "$AZURE_OPENAI_API_KEY" \
+  --print-results
+```
+
+If no judge API credentials are configured, `evaluate.py` still runs, but the LLM-judge portion falls back to zero-score outputs.
+
+Typical terminal-agent batch record from `agent/*_batch.py`:
+
+```json
+{
+  "agent": "ChatGPT",
+  "query_id": "1",
+  "question": "What does the guide say about court dress code?",
+  "answer": "The guide says court attendees should dress neatly and appropriately.",
+  "steps": {
+    "step_1": {
+      "command": "return_txt 'Guide to attending court.pdf'"
+    }
+  },
+  "ground_file_list": [
+    "Guide to attending court.pdf"
+  ],
+  "agent_file_list": [
+    "Guide to attending court.pdf"
+  ],
+  "ground_truth": "Dress neatly and appropriately for court.",
+  "evidence": [
+    "Guide to attending court.pdf"
+  ],
+  "agent_cap": "search+reasoning",
+  "QA_type": "factual_retention",
+  "time_ms": 6842
+}
+```
+
+Typical per-query result from `evaluate.py`:
+
+```json
+{
+  "query_id": "1",
+  "query": "What does the guide say about court dress code?",
+  "answer": "The guide says court attendees should dress neatly and appropriately.",
+  "ground_truth": "Dress neatly and appropriately for court.",
+  "time_ms": 6842,
+  "judge": {
+    "llm_as_a_judge_score": 4,
+    "pred": "yes",
+    "score_0_5": 4,
+    "score_normalized": 0.8,
+    "api_status": "success"
+  },
+  "ground_file_list": [
+    "Guide to attending court.pdf"
+  ],
+  "agent_file_list": [
+    "Guide to attending court.pdf"
+  ],
+  "file_list_metrics": {
+    "f1_score": 1.0,
+    "recall": 1.0,
+    "precision": 1.0
+  }
+}
+```
+
+Typical aggregate summary from `evaluate.py`:
+
+```json
+{
+  "total_queries": 100,
+  "metrics": {
+    "llm_judge": {
+      "mean": 3.42,
+      "min": 0,
+      "max": 5,
+      "count": 100,
+      "yes_count": 68,
+      "no_count": 32,
+      "pass_rate": 0.68,
+      "avg_latency_ms": 5120.4
+    }
+  },
+  "file_list_metrics": {
+    "total_evaluated": 100,
+    "average_f1_score": 0.57,
+    "average_recall": 0.61,
+    "average_precision": 0.55,
+    "file_hit_rate": 0.61
+  }
+}
+```
 
 ## Develop Your Prompt-Based Agent
 
@@ -562,35 +623,13 @@ The `agent/` directory is designed to be extensible. The released wrappers use a
 <answer>...</answer>
 ```
 
-The Claude wrapper additionally appends `<end>TERMINATE</end>` when it finalizes. To build your own prompt-based agent:
+To build your own prompt-based agent:
 
 - Start from `agent/gemini.py` or `agent/vllm.py`.
-- Keep the same terminal tool contract and JSON command shape.
+- Keep the same terminal-tool contract and JSON command shape.
 - Treat `/hippocamp/data` as the working directory root for benchmark file paths.
-- Use the released Docker commands as the only environment interface: `list_files`, `return_txt`, `return_img`, `return_ori`, `return_metadata`, `set_flags`, `webui`, `webui_status`, and `webui_stop`.
+- Use the released Docker commands as the environment interface: `list_files`, `return_txt`, `return_img`, `return_ori`, `return_metadata`, `set_flags`, `webui`, `webui_status`, and `webui_stop`.
 - Preserve the batch output schema so that `evaluate.py` can score your results without extra adapters.
-
-After you run your own prompt-based agent, evaluate it with `evaluate.py`, then email the result package to `zhe012@e.ntu.edu.sg`. The public leaderboard lives on the project page.
-
-## Docker Interface
-
-The Docker images expose a small, stable runtime surface documented in detail in [`docs/docker_api.md`](docs/docker_api.md), including the in-container CLI commands, the WebUI HTTP routes, feature flags, shell aliases, and the terminal-to-WebUI synchronization path.
-
-The following interface commands were verified locally on `hippocamp/adam_subset:latest`:
-
-```bash
-docker run --rm hippocamp/adam_subset:latest hhelp
-docker run --rm hippocamp/adam_subset:latest list_files '*.pdf'
-docker run --rm hippocamp/adam_subset:latest return_txt 'Guide to attending court.pdf'
-docker run --rm hippocamp/adam_subset:latest return_metadata 'Guide to attending court.pdf'
-```
-
-Always quote file paths with spaces:
-
-```bash
-return_txt 'Guide to attending court.pdf'
-return_metadata 'Guide to attending court.pdf'
-```
 
 ## Results and Analysis
 
@@ -598,68 +637,60 @@ return_metadata 'Guide to attending court.pdf'
 
 ![Table 1](assets/tables/table1.png)
 
-**Main results on HippoCamp across user profiles.** We evaluate representative MLLMs and agent methods on profiling and factual retention, reporting F1 and accuracy (Acc) for each archetypal profile and the overall average. Values are percentages (one decimal; % omitted). Best is highlighted; second-best is underlined.
+**Main results on HippoCamp across user profiles.** We evaluate representative MLLMs and agent methods on profiling and factual retention, reporting F1 and accuracy (Acc) for each profile and the overall average.
 
 ### Table 2
 
 ![Table 2](assets/tables/table2.png)
 
-**Agent capability-wise analysis on HippoCamp.** For the methods in Table 1, we report F1 and LLM-judge accuracy (Acc) aggregated by agent capability labels, decomposed into search, perception, and reasoning, for profiling and factual retention as well as the overall average. Values are percentages (one decimal; % omitted). Best is highlighted; second-best is underlined.
+**Agent capability-wise analysis on HippoCamp.** We report F1 and LLM-judge accuracy aggregated by capability labels, decomposed into search, perception, and reasoning.
 
-### Analysis figures
+### Analysis Figures
 
-#### Evidence breadth
+#### Number of Supporting Files Per Question
 
-![Evidence breadth](assets/figs/evidence_breadth.png)
+![Number of supporting files per question](assets/figs/evidence_breadth.png)
 
-`15_Evidence` measures evidence breadth: the number of ground-truth supporting files per query. In the released code, this is read from `file_number` when present and otherwise falls back to `len(file_path)`. It directly captures retrieval breadth and shows the benchmark's multi-file heavy tail.
+This figure shows how many ground-truth supporting files each question requires. It is the benchmark's direct view of evidence breadth.
 
-#### Modality breadth
+#### Number of Evidence Modalities Per Question
 
-![Modality breadth](assets/figs/modality_breadth.png)
+![Number of evidence modalities per question](assets/figs/modality_breadth.png)
 
-`16_Modality` measures modality breadth: the number of distinct values in `file_modality` for a query. This is the benchmark's direct proxy for cross-modal grounding burden.
+This figure shows how many distinct file modalities each question spans, such as documents, images, audio, or other file types.
 
-#### Reasoning depth
+#### Annotated Reasoning Depth Per Question
 
-![Reasoning depth](assets/figs/reasoning_depth.png)
+![Annotated reasoning depth per question](assets/figs/reasoning_depth.png)
 
-`17_Reasoning_steps` measures reasoning depth: the maximum `step_id` in `rationale`, or the rationale length when explicit IDs are absent. It captures the depth of annotated multi-step integration required by a query.
+This figure shows the number of reasoning steps required by the released rationale annotations.
 
-#### Difficulty distribution
+#### Overall Difficulty Distribution
 
-![Difficulty distribution](assets/figs/difficulty_distribution.png)
+![Overall difficulty distribution](assets/figs/difficulty_distribution.png)
 
-`18_Difficulty` aggregates eight factors into a scalar difficulty score: evidence files, modalities, file types, evidence items, reasoning steps, question length, answer length, and time span. The code applies weighted normalization, interaction terms, a hard-case bonus, and a sigmoid mapping to place the final score on a 0-100 scale.
+This figure summarizes the released scalar difficulty score, which combines evidence breadth, modality breadth, file types, evidence items, reasoning steps, question length, answer length, and time span.
 
-#### Difficulty vs performance
+#### Performance As Question Difficulty Increases
 
-![Difficulty vs performance](assets/figs/difficulty_vs_performance.png)
+![Performance as question difficulty increases](assets/figs/difficulty_vs_performance.png)
 
-`19_difficulty_vs_performance` bins question difficulty in 5-point intervals and aligns each bin with the per-question `judge.llm_as_a_judge_score` across nine evaluated methods. It shows how performance degrades as retrieval, perception, and reasoning constraints co-occur.
+This figure aligns question difficulty with per-question judge scores across released methods, showing how performance changes as questions become harder.
+
+See [`benchmark/analysis/README.md`](benchmark/analysis/README.md) for the scripts that reproduce these figures.
 
 ## Leaderboard and Result Submission
 
-The current leaderboard is hosted on the project page:
+The public leaderboard is hosted on the project page:
 
 - <https://savannah-yz.github.io/project_page/HippoCamp/>
 
-If you evaluate a new prompt-based agent or baseline, email your result package to `zhe012@e.ntu.edu.sg`. Please include the method name, model name, settings summary, and either the result JSON or the aggregate evaluation output.
+If you evaluate a new prompt-based agent or baseline, email your result package to `zhe012@e.ntu.edu.sg`. Include the method name, model name, settings summary, and either the result JSON or the aggregate evaluation output.
 
 ## Video
 
-The planned demo video will show the WebUI-based visualization agent operating a benchmark Docker environment end to end: inspecting files, gathering grounded evidence, and answering a released HippoCamp question.
-
-- `XXXXXXX`
+The demo video link will be added after the release assets are finalized.
 
 ## Citation
 
-```bibtex
-@misc{yang2026hippocamp,
-  title={HippoCamp: Benchmarking Contextual Agents on Personal Computers},
-  author={Zhe Yang and Shulin Tian and Kairui Hu and Shuai Liu and Hoang-Nhat Nguyen and Yichi Zhang and Zujin Guo and Mengying Yu and Zinan Zhang and Jingkang Yang and Chen Change Loy and Ziwei Liu},
-  year={2026},
-  note={ECCV submission},
-  url={https://savannah-yz.github.io/project_page/HippoCamp/}
-}
-```
+The final citation will be added after the public release is finalized. The current `CITATION.cff` file should be treated as provisional until then.
