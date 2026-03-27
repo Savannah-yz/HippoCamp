@@ -6,7 +6,6 @@ HippoCamp is a benchmark for evaluating contextual agents on realistic personal-
 [![Data Visualization](https://img.shields.io/badge/Data-Visualization-0a7ea4)](https://savannah-yz.github.io/data_visualization/HippoCamp/)
 [![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Dataset-f59e0b)](https://huggingface.co/datasets/MMMem-org/HippoCamp)
 [![Paper](https://img.shields.io/badge/Paper-Pending-9ca3af)](#paper)
-[![Leaderboard](https://img.shields.io/badge/Leaderboard-Project%20Page-16a34a)](https://savannah-yz.github.io/project_page/HippoCamp/)
 [![Video](https://img.shields.io/badge/Video-Watch%20Now-ff0000)](https://youtu.be/fY0NFkVL38A)
 [![Docker](https://img.shields.io/badge/Docker-coming%20soon-2496ed)](#docker-images)
 
@@ -462,6 +461,8 @@ The public leaderboard is hosted on the project page:
 If you evaluate a new prompt-based agent or baseline, email your result package to `zhe012@e.ntu.edu.sg`. Include the method name, model name, settings summary, and either the result JSON or the aggregate evaluation output.
 
 ## Video
+
+This video walks through the current public-facing visualization materials and interaction demos. It includes the data visualization view, the Docker-based environment visualization, and the agent's automated QA workflow inside the benchmark environment.
 
 [![HippoCamp demo video cover](https://img.youtube.com/vi/fY0NFkVL38A/hqdefault.jpg)](https://youtu.be/fY0NFkVL38A)
 
