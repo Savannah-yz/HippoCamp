@@ -5,17 +5,16 @@ HippoCamp is a benchmark for evaluating contextual agents on realistic personal-
 [![Project Page](https://img.shields.io/badge/Project-Page-1f6feb)](https://savannah-yz.github.io/project_page/HippoCamp/)
 [![Data Visualization](https://img.shields.io/badge/Data-Visualization-0a7ea4)](https://savannah-yz.github.io/data_visualization/HippoCamp/)
 [![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Dataset-f59e0b)](https://huggingface.co/datasets/MMMem-org/HippoCamp)
-[![Paper](https://img.shields.io/badge/Paper-Pending-9ca3af)](#paper)
 [![Video](https://img.shields.io/badge/Video-Watch%20Now-ff0000)](https://youtu.be/fY0NFkVL38A)
-[![Docker](https://img.shields.io/badge/Docker-coming%20soon-2496ed)](#docker-images)
+[![Docker](https://img.shields.io/badge/Docker-Downloads-2496ed)](#docker-images)
 
 ![HippoCamp teaser](assets/figs/teaser_overview.png)
 
 ## Release Status
 
-- HippoCamp was submitted to ECCV on February 15, 2026.
-- Public release dates for the repository, project page, dataset, and visualization assets will be finalized later.
-- The public paper PDF, Docker archive download links, and the final citation are not finalized yet.
+HippoCamp is in its public benchmark release stage. The repository, project page, dataset, visualization assets, demo video, and Docker archives are available now. The paper link will be added later as an arXiv release, and the final citation will be updated after publication.
+
+HippoCamp was submitted to ECCV on February 15, 2026.
 
 ## Overview
 
@@ -45,8 +44,7 @@ The released annotation JSONs follow the hierarchy below.
 | Hugging Face dataset | Available | <https://huggingface.co/datasets/MMMem-org/HippoCamp> | raw environments, official annotation JSONs, `HippoCamp_Gold`, metadata spreadsheets |
 | Project page | Available | <https://savannah-yz.github.io/project_page/HippoCamp/> | benchmark overview, examples, leaderboard |
 | Data visualization | Available | <https://savannah-yz.github.io/data_visualization/HippoCamp/> | interactive environment visualization |
-| Paper PDF | Pending | to be added at release | public paper PDF link |
-| Docker archives | Pending | to be added at release | six prebuilt benchmark images |
+| Docker archives | Available | <https://drive.google.com/drive/folders/1B4pRH5_7XRtGs5G5qmoRLVFpO96mQNM3?usp=sharing> | six prebuilt benchmark images |
 | Demo video | Available | <https://youtu.be/fY0NFkVL38A> | end-to-end WebUI and agent demo |
 | Citation | Pending | to be finalized after release | final BibTeX and `CITATION.cff` |
 
@@ -135,8 +133,7 @@ On that page, open the `Files and versions` tab to browse and download the relea
 ├── docs/
 │   ├── docker_api.md
 │   ├── evaluation.md
-│   ├── reproduction.md
-│   └── paper/HippoCamp.pdf
+│   └── reproduction.md
 ├── benchmark/
 │   ├── README.md
 │   ├── pyproject.toml
@@ -245,16 +242,18 @@ If you are unsure which Hugging Face asset corresponds to your workflow, use the
 
 ## Docker Images
 
-The public workflow uses six prebuilt Docker archives. Their download links are not finalized yet, but the expected archive names, image names, and host-port mappings are fixed:
+The public workflow uses six prebuilt Docker archives. All images are collected in the shared folder below, and each archive also has a direct Google Drive link:
+
+<https://drive.google.com/drive/folders/1B4pRH5_7XRtGs5G5qmoRLVFpO96mQNM3?usp=sharing>
 
 | Archive | Image | Container name | Host port | Download |
 | --- | --- | --- | --- | --- |
-| `hippocamp_bei_subset.tar` | `hippocamp/bei_subset:latest` | `hippocamp-bei-subset` | `18081` | To be added at release |
-| `hippocamp_adam_subset.tar` | `hippocamp/adam_subset:latest` | `hippocamp-adam-subset` | `18082` | To be added at release |
-| `hippocamp_victoria_subset.tar` | `hippocamp/victoria_subset:latest` | `hippocamp-victoria-subset` | `18083` | To be added at release |
-| `hippocamp_bei_fullset.tar` | `hippocamp/bei_fullset:latest` | `hippocamp-bei-fullset` | `18084` | To be added at release |
-| `hippocamp_adam_fullset.tar` | `hippocamp/adam_fullset:latest` | `hippocamp-adam-fullset` | `18085` | To be added at release |
-| `hippocamp_victoria_fullset.tar` | `hippocamp/victoria_fullset:latest` | `hippocamp-victoria-fullset` | `18086` | To be added at release |
+| `hippocamp_bei_subset.tar` | `hippocamp/bei_subset:latest` | `hippocamp-bei-subset` | `18081` | <https://drive.google.com/file/d/1iIk2Lh73onEPTnEI1Mvyvu4y0VzuVQyQ/view?usp=drive_link> |
+| `hippocamp_adam_subset.tar` | `hippocamp/adam_subset:latest` | `hippocamp-adam-subset` | `18082` | <https://drive.google.com/file/d/1pejdAYYmtNHQsxXXLpjsZSDpwfaAB52d/view?usp=drive_link> |
+| `hippocamp_victoria_subset.tar` | `hippocamp/victoria_subset:latest` | `hippocamp-victoria-subset` | `18083` | <https://drive.google.com/file/d/1cA_0ygglUSx26aY_HNupbf8YbzDejvov/view?usp=drive_link> |
+| `hippocamp_bei_fullset.tar` | `hippocamp/bei_fullset:latest` | `hippocamp-bei-fullset` | `18084` | <https://drive.google.com/file/d/1-9Q3tLOeTxnq9xeOpSrkf1XDZU8Vjmos/view?usp=drive_link> |
+| `hippocamp_adam_fullset.tar` | `hippocamp/adam_fullset:latest` | `hippocamp-adam-fullset` | `18085` | <https://drive.google.com/file/d/1ofHIaRQRHyCp-BGNxBx5kv8kQvB1AJwf/view?usp=drive_link> |
+| `hippocamp_victoria_fullset.tar` | `hippocamp/victoria_fullset:latest` | `hippocamp-victoria-fullset` | `18086` | <https://drive.google.com/file/d/1SvE5jdRKfk0xRKcVysTWVR_uA8ergvU3/view?usp=drive_link> |
 
 Load an archive once you have it:
 
