@@ -626,7 +626,7 @@ class QdrantVectorStore(BaseVectorStore):
             sparse_limit = max(limit, self.top_k_sparse)
             dense_response = await self.client.query_points(
                 collection_name=self.collection_name,
-                query=dense_embedding.tolist(),
+                query=dense_embedding if isinstance(dense_embedding, list) else dense_embedding.tolist(),
                 using=dense_using,
                 query_filter=query_filter,
                 limit=dense_limit,
@@ -648,7 +648,7 @@ class QdrantVectorStore(BaseVectorStore):
         else:
             response = await self.client.query_points(
                 collection_name=self.collection_name,
-                query=dense_embedding.tolist(),
+                query=dense_embedding if isinstance(dense_embedding, list) else dense_embedding.tolist(),
                 using=dense_using,
                 query_filter=query_filter,
                 limit=limit,
