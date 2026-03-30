@@ -28,6 +28,11 @@ Available Retrieval Providers:
     - standard_rag: Retrieve -> Rerank -> Return
     - self_rag: Retrieve -> Grade -> Filter -> (Iterate)
     - graded_rag: (Route) -> Retrieve -> (Grade) -> (Rewrite) -> Return
+    - corrective_rag: Retrieve -> Evaluate (3-class) -> Refine/Re-retrieve (CRAG)
+    - adaptive_rag: Classify complexity -> Route to Simple/Moderate/Complex
+    - hyde_rag: Generate hypothetical docs -> Average embeddings -> Retrieve (HyDE)
+    - ircot_rag: Interleave retrieval with chain-of-thought (IRCoT)
+    - decomposition_rag: Decompose query -> Sequential solving (Least-to-Most)
 
 Available Generator Providers:
     - gemini: Google Gemini API for generation
@@ -53,6 +58,11 @@ from .retrieval.standard_rag import StandardRAGProvider
 from .retrieval.self_rag import SelfRAGProvider
 from .retrieval.graded_rag import GradedRAGProvider
 from .retrieval.hybrid_rag import HybridRAGProvider
+from .retrieval.corrective_rag import CorrectiveRAGProvider
+from .retrieval.adaptive_rag import AdaptiveRAGProvider
+from .retrieval.hyde_rag import HyDERAGProvider
+from .retrieval.ircot_rag import IRCoTRAGProvider
+from .retrieval.decomposition_rag import DecompositionRAGProvider
 
 # Generator providers
 from .generator.gemini import GeminiGeneratorProvider
@@ -76,6 +86,11 @@ __all__ = [
     "SelfRAGProvider",
     "GradedRAGProvider",
     "HybridRAGProvider",
+    "CorrectiveRAGProvider",
+    "AdaptiveRAGProvider",
+    "HyDERAGProvider",
+    "IRCoTRAGProvider",
+    "DecompositionRAGProvider",
     # Generator providers
     "GeminiGeneratorProvider",
     "GeminiReActProvider",

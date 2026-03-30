@@ -34,40 +34,25 @@
 #                                                                  (retriever_server.yaml)
 #
 # Available types:
-#   - vector_search : Simple vector similarity search with optional reranking
-#   - standard_rag  : Standard RAG pipeline (Retrieve -> Rerank -> Return)
-#   - self_rag      : Self-RAG with reflection (Retrieve -> Grade -> Filter -> Iterate)
-#   - graded_rag    : Graded RAG ((Route) -> Retrieve -> (Grade) -> (Rewrite) -> Return)
-#   - hybrid_rag   : Hybrid RAG (Dense + BM25 via SQLite FTS5 -> RRF Fusion -> Rerank)
-#   - none          : No retrieval (auto-set for end-to-end generators)
+#   - vector_search      : Simple vector similarity search with optional reranking
+#   - standard_rag       : Standard RAG pipeline (Retrieve -> Rerank -> Return)
+#   - self_rag           : Self-RAG with reflection (Retrieve -> Grade -> Filter -> Iterate)
+#   - graded_rag         : Graded RAG ((Route) -> Retrieve -> (Grade) -> (Rewrite) -> Return)
+#   - hybrid_rag         : Hybrid RAG (Dense + BM25 via SQLite FTS5 -> RRF Fusion -> Rerank)
+#   - corrective_rag     : CRAG (Retrieve -> Evaluate -> Refine/Re-retrieve)
+#   - adaptive_rag       : Classify complexity -> Route to Simple/Moderate/Complex
+#   - hyde_rag           : HyDE (Generate hypothetical docs -> Average embeddings -> Retrieve)
+#   - ircot_rag          : IRCoT (Interleave retrieval with chain-of-thought)
+#   - decomposition_rag  : Least-to-Most (Decompose query -> Sequential solving)
+#   - none               : No retrieval (auto-set for end-to-end generators)
 #
 
 retrieval:
-  # type: "standard_rag"
-  # params:
-  #   top_k: 100
-  #   use_reranker: true
-  #   rerank_top_k: 5
-  #   relevance_threshold: 0.5
-  #   max_iterations: 2
-  #   max_rewrite_attempts: 2
-  #   enable_routing: true
-  #   enable_grading: true
-
-# To use hybrid_rag (Dense + BM25 via SQLite FTS5):
-retrieval:
-  type: "hybrid_rag"
+  type: "standard_rag"
   params:
-    top_k: 30                 # Candidates after RRF fusion
-    top_k_dense: 100          # Dense search candidates from Qdrant
-    top_k_bm25: 100           # BM25 candidates from SQLite FTS5
-    rrf_k: 60                 # RRF smoothing constant
-    use_reranker: true
-    rerank_top_k: 10
-    sqlite_db_path: "data/research_rag_financebench_page_synvo_local.sqlite"
-    store_prerank: true          # Store pre-rerank candidates for diagnostic analysis
-    # Metadata-based file filtering: "none" | "rule" | "rule_norerank" | "llm" | "llm_norerank"
-    metadata_filter: "llm"
+    top_k: 100
+    use_reranker: false
+    # rerank_top_k: 5
 
 # =============================================================================
 # Parent-Child Chunking Configuration
@@ -107,23 +92,22 @@ generators:
       temperature: 0.7
       api_key_env: "GEMINI_API_KEY"
       system_prompt: |
-        You are a financial analyst assistant. Your task is to answer questions about companies using ONLY the provided context from SEC filings (10-K, 10-Q, 8-K reports).
+        You are a helpful assistant that answers questions about a user's personal files and data. Use ONLY the provided context passages to answer the question.
 
-        CRITICAL INSTRUCTIONS:
-        1. Before claiming any information is missing, carefully re-read ALL context passages. Financial data often appears under different line item names than expected (e.g., "Purchases of property, plant and equipment" = "Capital Expenditures", "Cost of products sold" = "COGS").
-        2. For numerical/ratio questions: identify the required data points, extract exact numbers from the context, and show your calculation step by step.
-        3. For qualitative questions: synthesize information across all provided passages. Do not stop at the first relevant passage.
-        4. Only refuse to answer if you have thoroughly checked every passage and the required information is genuinely absent. A partial answer is better than a refusal.
-        5. When citing numbers, include the source passage number [1], [2], etc.
+        INSTRUCTIONS:
+        1. Carefully read ALL context passages before answering. Information may be spread across multiple passages.
+        2. Synthesize information from all relevant passages to provide a complete answer.
+        3. When referencing specific files, include the file name or path.
+        4. Only refuse to answer if you have thoroughly checked every passage and the required information is genuinely absent.
       rag_prompt_template: |
-        You are given context passages from SEC filings. Use them to answer the question.
+        You are given context passages retrieved from a user's personal files. Use them to answer the question.
 
         Context:
         {context}
 
         Question: {query}
 
-        Think step by step. Extract relevant data points, perform any necessary calculations, and provide a clear answer:
+        Provide a clear, complete answer based on the context:
 
   # ── Search-R1 (end-to-end, retrieval auto-set to 'none') ────────────────
   search_r1:

@@ -36,6 +36,11 @@ class RetrievalProviderType(Enum):
     SELF_RAG = "self_rag"
     GRADED_RAG = "graded_rag"
     HYBRID_RAG = "hybrid_rag"
+    CORRECTIVE_RAG = "corrective_rag"
+    ADAPTIVE_RAG = "adaptive_rag"
+    HYDE_RAG = "hyde_rag"
+    IRCOT_RAG = "ircot_rag"
+    DECOMPOSITION_RAG = "decomposition_rag"
     NONE = "none"  # For end-to-end methods like Search-R1
 
 

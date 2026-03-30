@@ -104,6 +104,41 @@ python3 scripts/run_query.py --batch sample_questions.json -e hippo \
   --retrieval self_rag --generator gemini --evaluate
 ```
 
+Corrective RAG (CRAG):
+
+```bash
+python3 scripts/run_query.py --batch sample_questions.json -e hippo \
+  --retrieval corrective_rag --generator gemini --no-rerank --evaluate
+```
+
+Adaptive RAG:
+
+```bash
+python3 scripts/run_query.py --batch sample_questions.json -e hippo \
+  --retrieval adaptive_rag --generator gemini --no-rerank --evaluate
+```
+
+HyDE RAG:
+
+```bash
+python3 scripts/run_query.py --batch sample_questions.json -e hippo \
+  --retrieval hyde_rag --generator gemini --no-rerank --evaluate
+```
+
+IRCoT RAG:
+
+```bash
+python3 scripts/run_query.py --batch sample_questions.json -e hippo \
+  --retrieval ircot_rag --generator gemini --no-rerank --evaluate
+```
+
+Decomposition RAG (Least-to-Most):
+
+```bash
+python3 scripts/run_query.py --batch sample_questions.json -e hippo \
+  --retrieval decomposition_rag --generator gemini --no-rerank --evaluate
+```
+
 ReAct (Gemini-2.5-flash):
 
 ```bash

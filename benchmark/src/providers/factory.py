@@ -65,6 +65,11 @@ from .retrieval import (
     SelfRAGProvider,
     GradedRAGProvider,
     HybridRAGProvider,
+    CorrectiveRAGProvider,
+    AdaptiveRAGProvider,
+    HyDERAGProvider,
+    IRCoTRAGProvider,
+    DecompositionRAGProvider,
 )
 from .generator import (
     GeminiGeneratorProvider,
@@ -83,7 +88,8 @@ class ProviderFactory:
     This factory supports:
     - Configuration-driven provider creation
     - Integration with SharedServiceFactory for service dependencies
-    - Multiple retrieval methods (vector_search, standard_rag, self_rag, graded_rag)
+    - Multiple retrieval methods (vector_search, standard_rag, self_rag, graded_rag,
+      corrective_rag, adaptive_rag, hyde_rag, ircot_rag, decomposition_rag)
     - Multiple generator methods (gemini, search_r1)
     - Easy switching between methods via config
 
@@ -100,6 +106,11 @@ class ProviderFactory:
         RetrievalProviderType.SELF_RAG.value: SelfRAGProvider,
         RetrievalProviderType.GRADED_RAG.value: GradedRAGProvider,
         RetrievalProviderType.HYBRID_RAG.value: HybridRAGProvider,
+        RetrievalProviderType.CORRECTIVE_RAG.value: CorrectiveRAGProvider,
+        RetrievalProviderType.ADAPTIVE_RAG.value: AdaptiveRAGProvider,
+        RetrievalProviderType.HYDE_RAG.value: HyDERAGProvider,
+        RetrievalProviderType.IRCOT_RAG.value: IRCoTRAGProvider,
+        RetrievalProviderType.DECOMPOSITION_RAG.value: DecompositionRAGProvider,
         RetrievalProviderType.NONE.value: None,
     }
 
@@ -381,6 +392,66 @@ class ProviderFactory:
                 reranker=reranker,
                 fts_store=fts_store,
                 keyword_llm=keyword_llm,
+            )
+
+        elif provider_type == "corrective_rag":
+            reranker = await self._get_reranker() if params.get("use_reranker", True) else None
+            base_gen = await self._get_base_generator()
+            gen_wrapper = await self._create_generator_wrapper(base_gen)
+            provider = CorrectiveRAGProvider(
+                config=config,
+                embedder=embedder,
+                vector_store=vector_store,
+                reranker=reranker,
+                generator=gen_wrapper,
+            )
+
+        elif provider_type == "adaptive_rag":
+            reranker = await self._get_reranker() if params.get("use_reranker", True) else None
+            base_gen = await self._get_base_generator()
+            gen_wrapper = await self._create_generator_wrapper(base_gen)
+            provider = AdaptiveRAGProvider(
+                config=config,
+                embedder=embedder,
+                vector_store=vector_store,
+                reranker=reranker,
+                generator=gen_wrapper,
+            )
+
+        elif provider_type == "hyde_rag":
+            reranker = await self._get_reranker() if params.get("use_reranker", True) else None
+            base_gen = await self._get_base_generator()
+            gen_wrapper = await self._create_generator_wrapper(base_gen)
+            provider = HyDERAGProvider(
+                config=config,
+                embedder=embedder,
+                vector_store=vector_store,
+                reranker=reranker,
+                generator=gen_wrapper,
+            )
+
+        elif provider_type == "ircot_rag":
+            reranker = await self._get_reranker() if params.get("use_reranker", True) else None
+            base_gen = await self._get_base_generator()
+            gen_wrapper = await self._create_generator_wrapper(base_gen)
+            provider = IRCoTRAGProvider(
+                config=config,
+                embedder=embedder,
+                vector_store=vector_store,
+                reranker=reranker,
+                generator=gen_wrapper,
+            )
+
+        elif provider_type == "decomposition_rag":
+            reranker = await self._get_reranker() if params.get("use_reranker", True) else None
+            base_gen = await self._get_base_generator()
+            gen_wrapper = await self._create_generator_wrapper(base_gen)
+            provider = DecompositionRAGProvider(
+                config=config,
+                embedder=embedder,
+                vector_store=vector_store,
+                reranker=reranker,
+                generator=gen_wrapper,
             )
 
         else:

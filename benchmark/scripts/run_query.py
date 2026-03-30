@@ -2,7 +2,8 @@
 """
 Run the full RAG query pipeline with optional evaluation.
 
-Supports multiple retrieval strategies (vector_search, standard_rag, self_rag, graded_rag)
+Supports multiple retrieval strategies (vector_search, standard_rag, self_rag, graded_rag,
+corrective_rag, adaptive_rag, hyde_rag, ircot_rag, decomposition_rag)
 and generation methods (gemini, search_r1) through the Provider system.
 
 === THREE OPERATIONAL MODES ===
@@ -21,11 +22,16 @@ Mode 3: Evaluate Only (on existing results file, no querying)
 === PROVIDER OPTIONS ===
 
 Retrieval Methods:
-    --retrieval vector_search  : Simple vector similarity search
-    --retrieval standard_rag   : Retrieve → Rerank → Return (default)
-    --retrieval self_rag       : Retrieve → Grade → Filter → Iterate
-    --retrieval graded_rag    : Route → Retrieve → Grade → Rewrite → Return
-    --retrieval none           : No retrieval (for end-to-end generators)
+    --retrieval vector_search     : Simple vector similarity search
+    --retrieval standard_rag      : Retrieve → Rerank → Return (default)
+    --retrieval self_rag          : Retrieve → Grade → Filter → Iterate
+    --retrieval graded_rag        : Route → Retrieve → Grade → Rewrite → Return
+    --retrieval corrective_rag    : Retrieve → Evaluate (3-class) → Refine/Re-retrieve (CRAG)
+    --retrieval adaptive_rag      : Classify complexity → Route to Simple/Moderate/Complex
+    --retrieval hyde_rag           : Generate hypothetical docs → Average embeddings → Retrieve (HyDE)
+    --retrieval ircot_rag          : Interleave retrieval with chain-of-thought (IRCoT)
+    --retrieval decomposition_rag : Decompose query → Sequential solving (Least-to-Most)
+    --retrieval none              : No retrieval (for end-to-end generators)
 
 Generator Methods:
     --generator gemini         : Google Gemini API (default)
@@ -910,7 +916,9 @@ async def main():
     parser.add_argument(
         "--retrieval",
         type=str,
-        choices=["vector_search", "standard_rag", "self_rag", "graded_rag", "hybrid_rag", "none"],
+        choices=["vector_search", "standard_rag", "self_rag", "graded_rag", "hybrid_rag",
+                 "corrective_rag", "adaptive_rag", "hyde_rag", "ircot_rag",
+                 "decomposition_rag", "none"],
         help="Retrieval provider type (overrides providers.yaml)"
     )
     parser.add_argument(
@@ -1175,6 +1183,10 @@ async def main():
                 logger.warning(f"Could not load user profile: {e}")
         else:
             logger.warning("--user specified but MONGODB_URI not set")
+
+    # Propagate --no-rerank into provider params so all providers skip reranker
+    if args.no_rerank:
+        provider_config.setdefault("retrieval", {}).setdefault("params", {})["use_reranker"] = False
 
     # Create and run pipeline
     pipeline = QueryPipeline(
