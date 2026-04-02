@@ -2,12 +2,12 @@
 
 HippoCamp is a benchmark for evaluating contextual agents on realistic personal-computing environments. It covers multimodal file management across documents, images, audio, video, emails, calendars, and other everyday artifacts, with 42.4 GB of data across more than 2K files. On top of these environments, HippoCamp provides 581 QA pairs and 46.1K structured trajectory annotations for analyzing search, perception, and multi-step reasoning failures.
 
-[![Project Page](https://img.shields.io/badge/Project-Page-1f6feb)](https://hippocamp-ai.github.io/)
-[![Data Visualization](https://img.shields.io/badge/Data-Visualization-0a7ea4)](https://hippocamp-ai.github.io/hippocamp/)
-[![Paper](https://img.shields.io/badge/Paper-HuggingFace-f59e0b)](https://huggingface.co/papers/2604.01221)
-[![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Dataset-f59e0b)](https://huggingface.co/datasets/MMMem-org/HippoCamp)
-[![Video](https://img.shields.io/badge/Video-Watch%20Now-ff0000)](https://youtu.be/ed-v_nhoaR4)
-[![Docker](https://img.shields.io/badge/Docker-Downloads-2496ed)](#docker-images)
+[![Project Page](https://img.shields.io/badge/🌐_Project_Page-Visit-4285F4)](https://hippocamp-ai.github.io/)
+[![Data Visualization](https://img.shields.io/badge/📊_Data_Visualization-Explore-0DBD8B)](https://hippocamp-ai.github.io/hippocamp/)
+[![Paper](https://img.shields.io/badge/📄_Paper-Read_on_HuggingFace-FF6F00)](https://huggingface.co/papers/2604.01221)
+[![Dataset](https://img.shields.io/badge/🤗_Dataset-Download-FFD21E)](https://huggingface.co/datasets/MMMem-org/HippoCamp)
+[![Video](https://img.shields.io/badge/🎬_Video-Watch_Demo-FF0000)](https://youtu.be/ed-v_nhoaR4)
+[![Docker](https://img.shields.io/badge/🐳_Docker-Get_Images-2496ED)](#docker-images)
 
 ![HippoCamp teaser](assets/figs/teaser_overview.png)
 
