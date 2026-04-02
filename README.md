@@ -28,15 +28,15 @@ The released annotation JSONs follow the hierarchy below.
 
 ## Release Assets
 
-| Asset | Status | Location | Contents |
-| --- | --- | --- | --- |
-| GitHub repository | Available | this repository | code, configs, docs, figures, evaluation scripts, sample assets |
-| Hugging Face dataset | Available | <https://huggingface.co/datasets/MMMem-org/HippoCamp> | raw environments, official annotation JSONs, `HippoCamp_Gold`, metadata spreadsheets |
-| Project page | Available | <https://hippocamp-ai.github.io/> | benchmark overview, examples, leaderboard |
-| Data visualization | Available | <https://hippocamp-ai.github.io/hippocamp/> | interactive environment visualization |
-| Docker archives | Available | <https://drive.google.com/drive/folders/1B4pRH5_7XRtGs5G5qmoRLVFpO96mQNM3?usp=sharing> | six prebuilt benchmark images |
-| Paper | Available | <https://huggingface.co/papers/2604.01221> | HippoCamp paper |
-| Demo video | Available | <https://youtu.be/ed-v_nhoaR4> | end-to-end WebUI and agent demo |
+| Asset | Location | Contents |
+| --- | --- | --- |
+| GitHub Repository | This repository | Code, configs, docs, evaluation scripts |
+| Paper | [HuggingFace](https://huggingface.co/papers/2604.01221) | HippoCamp paper |
+| Dataset | [HuggingFace](https://huggingface.co/datasets/MMMem-org/HippoCamp) | Raw environments, annotations, `HippoCamp_Gold`, metadata |
+| Project Page | [hippocamp-ai.github.io](https://hippocamp-ai.github.io/) | Benchmark overview, examples, leaderboard |
+| Data Visualization | [hippocamp-ai.github.io/hippocamp](https://hippocamp-ai.github.io/hippocamp/) | Interactive environment visualization |
+| Docker Archives | [Google Drive](https://drive.google.com/drive/folders/1B4pRH5_7XRtGs5G5qmoRLVFpO96mQNM3?usp=sharing) | Six prebuilt benchmark images |
+| Demo Video | [YouTube](https://youtu.be/ed-v_nhoaR4) | End-to-end WebUI and agent demo |
 
 ## Data Layout
 
