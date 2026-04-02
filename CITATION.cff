@@ -1,5 +1,4 @@
 cff-version: 1.2.0
-# NOTE: This citation is provisional and will be updated after the public release is finalized.
 message: "If you use HippoCamp, please cite the paper below."
 title: "HippoCamp: Benchmarking Contextual Agents on Personal Computers"
 type: software
@@ -30,4 +29,4 @@ authors:
     given-names: Ziwei
 date-released: 2026-03-26
 repository-code: "https://github.com/Savannah-yz/HippoCamp"
-url: "https://savannah-yz.github.io/project_page/HippoCamp/"
+url: "https://hippocamp-ai.github.io/"

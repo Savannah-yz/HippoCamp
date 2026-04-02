@@ -2,19 +2,14 @@
 
 HippoCamp is a benchmark for evaluating contextual agents on realistic personal-computing environments. It covers multimodal file management across documents, images, audio, video, emails, calendars, and other everyday artifacts, with 42.4 GB of data across more than 2K files. On top of these environments, HippoCamp provides 581 QA pairs and 46.1K structured trajectory annotations for analyzing search, perception, and multi-step reasoning failures.
 
-[![Project Page](https://img.shields.io/badge/Project-Page-1f6feb)](https://savannah-yz.github.io/project_page/HippoCamp/)
-[![Data Visualization](https://img.shields.io/badge/Data-Visualization-0a7ea4)](https://savannah-yz.github.io/data_visualization/HippoCamp/)
+[![Project Page](https://img.shields.io/badge/Project-Page-1f6feb)](https://hippocamp-ai.github.io/)
+[![Data Visualization](https://img.shields.io/badge/Data-Visualization-0a7ea4)](https://hippocamp-ai.github.io/hippocamp/)
+[![Paper](https://img.shields.io/badge/Paper-HuggingFace-f59e0b)](https://huggingface.co/papers/2604.01221)
 [![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Dataset-f59e0b)](https://huggingface.co/datasets/MMMem-org/HippoCamp)
-[![Video](https://img.shields.io/badge/Video-Watch%20Now-ff0000)](https://youtu.be/fY0NFkVL38A)
+[![Video](https://img.shields.io/badge/Video-Watch%20Now-ff0000)](https://youtu.be/ed-v_nhoaR4)
 [![Docker](https://img.shields.io/badge/Docker-Downloads-2496ed)](#docker-images)
 
 ![HippoCamp teaser](assets/figs/teaser_overview.png)
-
-## Release Status
-
-HippoCamp is in its public benchmark release stage. The repository, project page, dataset, visualization assets, demo video, and Docker archives are available now. The paper link will be added later as an arXiv release, and the final citation will be updated after publication.
-
-HippoCamp was submitted to ECCV on February 15, 2026.
 
 ## Overview
 
@@ -42,11 +37,11 @@ The released annotation JSONs follow the hierarchy below.
 | --- | --- | --- | --- |
 | GitHub repository | Available | this repository | code, configs, docs, figures, evaluation scripts, sample assets |
 | Hugging Face dataset | Available | <https://huggingface.co/datasets/MMMem-org/HippoCamp> | raw environments, official annotation JSONs, `HippoCamp_Gold`, metadata spreadsheets |
-| Project page | Available | <https://savannah-yz.github.io/project_page/HippoCamp/> | benchmark overview, examples, leaderboard |
-| Data visualization | Available | <https://savannah-yz.github.io/data_visualization/HippoCamp/> | interactive environment visualization |
+| Project page | Available | <https://hippocamp-ai.github.io/> | benchmark overview, examples, leaderboard |
+| Data visualization | Available | <https://hippocamp-ai.github.io/hippocamp/> | interactive environment visualization |
 | Docker archives | Available | <https://drive.google.com/drive/folders/1B4pRH5_7XRtGs5G5qmoRLVFpO96mQNM3?usp=sharing> | six prebuilt benchmark images |
-| Demo video | Available | <https://youtu.be/fY0NFkVL38A> | end-to-end WebUI and agent demo |
-| Citation | Pending | to be finalized after release | final BibTeX and `CITATION.cff` |
+| Paper | Available | <https://huggingface.co/papers/2604.01221> | HippoCamp paper |
+| Demo video | Available | <https://youtu.be/ed-v_nhoaR4> | end-to-end WebUI and agent demo |
 
 ## Data Layout
 
@@ -455,7 +450,7 @@ See [`benchmark/analysis/README.md`](benchmark/analysis/README.md) for the scrip
 
 The public leaderboard is hosted on the project page:
 
-- <https://savannah-yz.github.io/project_page/HippoCamp/>
+- <https://hippocamp-ai.github.io/>
 
 If you evaluate a new prompt-based agent or baseline, email your result package to `zhe012@e.ntu.edu.sg`. Include the method name, model name, settings summary, and either the result JSON or the aggregate evaluation output.
 
@@ -463,8 +458,20 @@ If you evaluate a new prompt-based agent or baseline, email your result package 
 
 This video walks through the current public-facing visualization materials and interaction demos. It includes the data visualization view, the Docker-based environment visualization, and the agent's automated QA workflow inside the benchmark environment.
 
-[![HippoCamp demo video cover](https://img.youtube.com/vi/fY0NFkVL38A/hqdefault.jpg)](https://youtu.be/fY0NFkVL38A)
+<a href="https://youtu.be/ed-v_nhoaR4">
+  <img src="https://img.youtube.com/vi/ed-v_nhoaR4/hqdefault.jpg" alt="HippoCamp demo video cover">
+</a>
 
 ## Citation
 
-The final citation will be added after the public release is finalized. The current `CITATION.cff` file should be treated as provisional until then.
+```bibtex
+@misc{yang2026hippocampbenchmarkingcontextualagents,
+      title={HippoCamp: Benchmarking Contextual Agents on Personal Computers}, 
+      author={Zhe Yang and Shulin Tian and Kairui Hu and Shuai Liu and Hoang-Nhat Nguyen and Yichi Zhang and Zujin Guo and Mengying Yu and Zinan Zhang and Jingkang Yang and Chen Change Loy and Ziwei Liu},
+      year={2026},
+      eprint={2604.01221},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2604.01221}, 
+}
+```
